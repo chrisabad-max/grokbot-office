@@ -118,8 +118,8 @@ const MAIN = /* glsl */`
   }
 #endif`;
 
-// After the relight: swap the bake's flat albedo for the hardwood, keeping its light and occlusion.
-// bqAlbedo is the bake's sunlit colour, so wood / bqAlbedo is a colour change, not a second lighting pass.
+// After the relight: the bake's sun turns a raw oak map honey-brown. Keep its light ratio, but place the
+// planks on a pale beige (about #D9C4A3 in shade to #E6D5B8 in the sun, before tone mapping compresses it).
 const WOOD_PARS = /* glsl */`
 uniform sampler2D bqWoodMap;
 `;
@@ -127,7 +127,11 @@ const WOOD_MAIN = /* glsl */`
 {
   vec2 bqUv = ( vBqWorld.xz + vec2( 8.0, 6.0 ) ) * vec2( 1.0 / 16.0, 1.0 / 12.0 );
   vec3 bqWood = texture2D( bqWoodMap, clamp( bqUv, 0.0, 1.0 ) ).rgb;
-  diffuseColor.rgb *= bqWood / max( bqAlbedo, vec3( 1e-3 ) );
+  float bqShade = dot( diffuseColor.rgb, BQ_LUMA ) / max( dot( bqAlbedo, BQ_LUMA ), 1e-3 );
+  float bqLight = 0.88 + 0.34 * clamp( bqShade, 0.0, 1.3 );
+  vec3 bqBeige = vec3( 0.78, 0.58, 0.37 );
+  vec3 bqWoodMid = vec3( 0.90, 0.82, 0.70 );
+  diffuseColor.rgb = bqBeige * ( bqWood / bqWoodMid ) * bqLight;
 }`;
 
 const lin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };

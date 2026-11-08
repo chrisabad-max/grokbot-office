@@ -6,16 +6,17 @@
 import * as THREE from 'three';
 
 const METERS_X = 16, METERS_Z = 12, PPM = 128;
-// Light oak, sRGB. Near the baked floor's brightness so bots, desks and labels stay readable.
+// Pale natural / white-washed oak, sRGB, before the sun shader. The lit floor should land near
+// #D9C4A3–#E6D5B8 on screen, so these swatches stay lighter and less orange than the final colour.
 const TONES = [
-  [236, 214, 176],
-  [228, 201, 158],
-  [244, 226, 196],
-  [214, 186, 142],
-  [232, 208, 168],
-  [248, 232, 208],
+  [246, 234, 214],
+  [240, 226, 204],
+  [250, 240, 222],
+  [236, 220, 196],
+  [244, 230, 208],
+  [252, 244, 228],
 ];
-const SEAM = [96, 74, 52];
+const SEAM = [186, 168, 144];
 
 function hash(n) {
   n = Math.imul(n ^ (n >>> 16), 0x7feb352d);
@@ -84,17 +85,17 @@ export function createHardwoodTexture(maxAnisotropy = 8) {
       const seam = Math.min(zEdge, px - x0, x1 - 1 - px);
       const plank = hash(row.i * 131 + lo * 17 + 9);
       const tone = TONES[plank % TONES.length];
-      const vary = (unit(plank ^ 0x51) - 0.5) * 16;
+      const vary = (unit(plank ^ 0x51) - 0.5) * 8;
       const along = (px - x0) / PPM * 11 + unit(plank) * 6;
-      const grain = Math.sin(along) * 6 + Math.sin(along * 2.6 + z * 28) * 3.5 + (unit(hash((px * 3) ^ (py * 5 + row.i))) - 0.5) * 8;
+      const grain = Math.sin(along) * 3.2 + Math.sin(along * 2.6 + z * 28) * 1.8 + (unit(hash((px * 3) ^ (py * 5 + row.i))) - 0.5) * 4;
       const span = Math.max(1, z1px - z0px);
       const across = Math.min(Math.max(zEdge, 0), span * 0.5) / (span * 0.5);
-      const satin = Math.pow(across, 0.5) * (9 + unit(plank ^ 3) * 5);
+      const satin = Math.pow(across, 0.5) * (5 + unit(plank ^ 3) * 3);
       let r, g, b;
       if (seam <= 0) {
         r = SEAM[0]; g = SEAM[1]; b = SEAM[2];
       } else {
-        const edge = seam === 1 ? 0.88 : 1;
+        const edge = seam === 1 ? 0.94 : 1;
         r = (tone[0] + vary + grain * 0.85 + satin) * edge;
         g = (tone[1] + vary * 0.92 + grain * 0.7 + satin * 0.92) * edge;
         b = (tone[2] + vary * 0.7 + grain * 0.45 + satin * 0.75) * edge;
