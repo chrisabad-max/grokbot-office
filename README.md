@@ -1,3 +1,16 @@
+> **About this fork.** This is a modified copy of [grokbot-wallpaper](https://github.com/Bodila51/grokbot-wallpaper),
+> the Grok Bot Dashboard by **@0xCodila (Bodila51)**. All credit for the original design, 3D office, avatars and code goes
+> to the author. The upstream repository carries no LICENSE file, so its terms are the author's; ask the author before
+> any public redistribution. Changes in this fork (office page `web/`):
+> - reads only ntfy.sh (or the one mailbox a link names); the author's relay (relay.0xcodila.com) and the usage beacon are removed
+> - three.js 0.170.0 is vendored in `web/vendor/three@0.170.0/` (MIT, its LICENSE included); no jsDelivr, no Google Fonts
+> - the latest roster / groups / looks / chat lines replace the previous ones; bots not on the latest roster are hidden;
+>   "Phone with Bland" is never shown
+> - new localStorage namespace (`bothq.fork1.*`, old `bothq.feed.*` caches are deleted), status lines cached for 12 h;
+>   the latest config lines are cached separately (max 7 days) so teams survive the mailbox's 12 h window
+> - roster entries no longer count as events in "events today"
+> - the wallpaper (`web/face/`) also reads ntfy.sh only and loads no Google Fonts
+
 # Grok Bot Wallpaper
 
 Live wallpaper and dashboard for your Grok Bot bots (an independent project, not affiliated with the makers of Grok Bot): a 3D office where every bot is a glossy blob at a desk on the top floor of an endless tower,

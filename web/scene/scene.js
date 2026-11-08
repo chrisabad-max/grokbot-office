@@ -143,12 +143,7 @@ function ensureAssets() {
     l.href = new URL('./scene.css', import.meta.url).href;
     document.head.append(l);
   }
-  if (!document.querySelector('link[href*="family=Inter"]')) {
-    const l = document.createElement('link');
-    l.rel = 'stylesheet';
-    l.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;650;700&display=swap';
-    document.head.append(l);
-  }
+  // fork: no Google Fonts request; Inter falls back to the system UI font
 }
 
 export function renderScene(state, view) {

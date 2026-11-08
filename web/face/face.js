@@ -630,7 +630,7 @@ window.livelyPropertyListener = (name, value) => {
 // channel with plain curl; nothing else runs on the bots' box. The page reads the last 12 hours, then listens live.
 // The mailbox is FEED_BASE unless the link names another: #<channel>@<host>, ?feed=<host> or &ntfy=<https server>.
 const FEED_BASE = 'https://ntfy.sh/';                    // = FEED_BASE in office/lib/feedbase.js (a test keeps them equal)
-const RELAY = 'https://relay.0xcodila.com';              // our relay: bots set up with the current prompt post there
+const RELAY = 'relay-removed-in-fork:';   // fork: the author's relay is never contacted (no URL starts with this)
 const stored = (key) => { try { return localStorage.getItem(key); } catch { return null; } };
 // The channel out of whatever holds it: the channel itself (gbw-…, maybe @<server>), or a whole dashboard or wallpaper
 // link with it after # (Grok Bot replies with the dashboard link, and people paste that into Lively's box as it is).
@@ -724,7 +724,7 @@ async function connectFeed() {
   state = { bots: saved.bots, usage: saved.usage ?? null };
   // the usual mailbox (ntfy.sh) means "read both", like the office: bots on the first prompt post to ntfy.sh, bots on
   // the current one to our relay; a link that names another server reads only that one
-  const boxes = (NTFY === FEED_BASE.replace(/\/$/, '') ? [RELAY, NTFY] : [NTFY]).map((s) => `${s}/${encodeURIComponent(FEED)}`);
+  const boxes = [NTFY].map((s) => `${s}/${encodeURIComponent(FEED)}`);
   const seen = new Set();
   const fresh = (m) => { const k = `${m.time} ${m.message}`; return !seen.has(k) && !!seen.add(k); };   // a line in both boxes counts once
   const rows = [];

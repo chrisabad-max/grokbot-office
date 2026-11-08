@@ -21,6 +21,7 @@ const parts = [
   // the 3D office: its page and modules (no *.html test pages), its demo data
   ['web', 'office', /^(index\.html|app\.js|styles\.css|wallpaper\.js|feed\.js)$/],
   ['web/lib', 'office/lib', /\.(js|css|json)$/, { deep: true, optional: true }],
+  ['web/vendor', 'office/vendor', /\.(js|LICENSE)$|^LICENSE$/, { deep: true }],   // fork: three.js 0.170.0, self-hosted
   ['web/scene', 'office/scene', /\.(js|css)$/],
   ['web/ui', 'office/ui', /\.(js|css)$/],
   ['web/audio', 'office/audio', /\.(js|m4a)$/],

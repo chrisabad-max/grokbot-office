@@ -19,10 +19,7 @@
   <link rel="icon" type="image/png" href="../assets/brand/logo-mark.png">
   <link rel="apple-touch-icon" href="../assets/brand/logo-mark.png">
   <meta name="theme-color" content="#F3F4F6">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <!-- fork: no Google Fonts; Inter/Nunito fall back to the system UI font -->
   <link rel="stylesheet" href="./styles.css">
   <link rel="stylesheet" href="./scene/scene.css">
   <link rel="stylesheet" href="./ui/ui.css">
@@ -30,13 +27,13 @@
   <script type="importmap">
     {
       "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        "three": "./vendor/three@0.170.0/build/three.module.js",
+        "three/addons/": "./vendor/three@0.170.0/examples/jsm/"
       }
     }
   </script>
   <!-- the two big downloads start with the page, not after the scripts that ask for them (after the import map) -->
-  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js">
+  <link rel="modulepreload" href="./vendor/three@0.170.0/build/three.module.js">
   <link rel="preload" href="../assets/office/office.glb" as="fetch" crossorigin>
 </head>
 <body>

@@ -218,6 +218,14 @@ export class StateStore {
       this.bots.set(id, bot);
     }
     const now = this.now();
+    // fork: a roster entry (listed) only seats the bot. It is not an event: no history, feed, "events today" or
+    // last-event time, so the bot reads as "never posted" until its own first status line.
+    if (rec.listed === true) {
+      this.assign(bot);
+      this.refreshSig(bot, now, this.time.day(now));
+      this.dirty = true;
+      return;
+    }
     let ms = parseTime(rec.t);
     if (ms === null || ms > now + 60e3) ms = now;
 
