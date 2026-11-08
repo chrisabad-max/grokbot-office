@@ -34,8 +34,18 @@ test('fork: feed.js – latest roster/groups win, Phone with Bland hidden, only 
   globalThis.fetch = async (u) => { urls.push(u); return { text: async () => msgs }; };
   globalThis.EventSource = class { constructor(u) { urls.push(u); } };
   const { connectFeed, feedFromHash } = await import('../../web/feed.js');
+  // connectFeed keeps a 30s refresh timer; unref it so this file's tests can exit.
+  const realSetInterval = globalThis.setInterval, realSetTimeout = globalThis.setTimeout;
+  const unref = (id) => { id?.unref?.(); return id; };
+  globalThis.setInterval = (...args) => unref(realSetInterval(...args));
+  globalThis.setTimeout = (...args) => unref(realSetTimeout(...args));
   let state;
-  await connectFeed(feedFromHash('#testtopic1'), (s) => { state = s; });
+  try {
+    await connectFeed(feedFromHash('#testtopic1'), (s) => { state = s; });
+  } finally {
+    globalThis.setInterval = realSetInterval;
+    globalThis.setTimeout = realSetTimeout;
+  }
   assert.deepEqual(Object.keys(state.bots).sort(), ['a-one', 'b-two']);
   assert.deepEqual(state.floors.map((f) => f.name), ['The Twelve']);
   assert.equal(state.bots['a-one'].effective_status, 'working');

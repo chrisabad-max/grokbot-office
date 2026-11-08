@@ -1,8 +1,6 @@
-# Publishes the Grok Bot wallpaper site to GitHub Pages on every push to main:
-# https://bodila51.github.io/grokbot-wallpaper/        the landing page (landing/), with the live wallpaper in it
-# https://bodila51.github.io/grokbot-wallpaper/face/   the wallpaper itself with its demo data (installed wallpapers
-# point here and pick up every change by themselves). landing/assemble.mjs lists what goes out (no journal, keys or
-# source art); the same tree is deployed to https://0xcodila.com/grokbot-wallpaper/, the landing's main address.
+# Publishes this fork of the Grok Bot office to GitHub Pages on every push to main:
+# https://chrisabad-max.github.io/grokbot-office/
+# landing/assemble.mjs builds _site/ (no journal, keys, or source art). The feed topic stays in the URL hash.
 name: Pages
 on:
   push:
@@ -25,7 +23,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Assemble the site
         run: node landing/assemble.mjs _site
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-      - id: deployment
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
