@@ -1,13 +1,13 @@
 // Desk tops and workstation screens, added to the floor_open template (every level clones it).
 // Tops are a shared near-white material so they stay lighter than the beige floor after the sun.
-// About two thirds of the seats get a monitor (some dual); the rest keep a small laptop.
-// The pattern is fixed, geometry and materials are shared, and nothing is named laptop_screen_
-// except the laptops, so the working-glow pass still finds those and leaves the monitors alone.
+// Seven seats get a monitor (five single, two dual), spread down both tables and both sides.
+// The rest keep a laptop. The pattern is fixed. A monitor's local +Z is the screen, and that
+// axis is aimed at the seat, so opposite sides of a row face opposite ways.
 import * as THREE from 'three';
 
 const DESK_COUNT = 20;
-// 0 laptop, 1 one monitor, 2 two monitors. 13 of 20 seats get a screen.
-const KIND = [2, 0, 1, 1, 2, 0, 1, 0, 2, 1, 0, 1, 2, 0, 0, 1, 2, 1, 0, 1];
+// 0 laptop, 1 one monitor, 2 two monitors. Seats 1, 4, 12, 15, 18 single; 9 and 19 dual.
+const KIND = [1, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 1, 0, 0, 1, 2, 0];
 const REACH = 0.84;                 // metres from the seat empty to the stand, onto the table
 const DESK_Y = 0.75;                // table top
 const SCREEN_W = 0.44, SCREEN_H = 0.26, BEZEL = 0.011;
@@ -59,28 +59,33 @@ export function dressWorkstations(open) {
 
   const monitors = [];
   const laptops = [];
-  const dummy = new THREE.Object3D();
   const forward = new THREE.Vector3();
-  const right = new THREE.Vector3();
+  const xAxis = new THREE.Vector3();
+  const yAxis = new THREE.Vector3(0, 1, 0);
+  const zAxis = new THREE.Vector3();
+  const basis = new THREE.Matrix4();
   for (let n = 1; n <= DESK_COUNT; n++) {
     const desk = desks[n];
     if (!desk) continue;
+    // The seat empty's +Z points from the chair toward the table. The screen's +Z points back at the chair.
     forward.set(0, 0, 1).applyQuaternion(desk.quaternion);
-    right.set(1, 0, 0).applyQuaternion(desk.quaternion);
+    forward.y = 0;
+    if (forward.lengthSq() < 1e-8) forward.set(0, 0, 1);
+    forward.normalize();
     const at = desk.position.clone().addScaledVector(forward, REACH);
     at.y = DESK_Y;
-    dummy.position.copy(at);
-    dummy.lookAt(desk.position.x, at.y, desk.position.z);
-    dummy.rotateY(Math.PI);
-    dummy.updateMatrix();
+    zAxis.copy(forward).negate();
+    xAxis.crossVectors(yAxis, zAxis).normalize();
+    basis.makeBasis(xAxis, yAxis, zAxis);
+    basis.setPosition(at);
     const kind = KIND[n - 1];
-    if (kind === 0) laptops.push({ n, matrix: dummy.matrix.clone() });
+    if (kind === 0) laptops.push({ n, matrix: basis.clone() });
     else {
       const offs = kind === 2 ? [-(SCREEN_W + DUAL_GAP) / 2, (SCREEN_W + DUAL_GAP) / 2] : [0];
       for (const off of offs) {
-        const m = dummy.matrix.clone();
-        m.multiply(new THREE.Matrix4().makeTranslation(off, 0, 0));
-        monitors.push(m);
+        const placed = basis.clone();
+        placed.multiply(new THREE.Matrix4().makeTranslation(off, 0, 0));
+        monitors.push(placed);
       }
     }
   }
