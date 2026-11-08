@@ -5,7 +5,7 @@ name: Pages
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+  workflow_dispatch: # re-run from the Actions tab without another code change
 permissions:
   contents: read
   pages: write
