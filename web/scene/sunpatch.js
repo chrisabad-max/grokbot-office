@@ -12,6 +12,7 @@
 // The code is chained after building.js's night patch (onBeforeCompile, one extra compile per program) and weighted
 // by the day share of the lightmap crossfade, so the night lightmaps stay exactly as they are.
 import * as THREE from 'three';
+import { createHardwoodTexture, HARDWOOD_FLOOR } from './hardwood.js';
 
 const LEVEL = 0.32;                                       // shade / sunlit luminance in the floor bake (0.26 vs 0.83)
 const COARSE = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches;
@@ -117,6 +118,18 @@ const MAIN = /* glsl */`
   }
 #endif`;
 
+// After the relight: swap the bake's flat albedo for the hardwood, keeping its light and occlusion.
+// bqAlbedo is the bake's sunlit colour, so wood / bqAlbedo is a colour change, not a second lighting pass.
+const WOOD_PARS = /* glsl */`
+uniform sampler2D bqWoodMap;
+`;
+const WOOD_MAIN = /* glsl */`
+{
+  vec2 bqUv = ( vBqWorld.xz + vec2( 8.0, 6.0 ) ) * vec2( 1.0 / 16.0, 1.0 / 12.0 );
+  vec3 bqWood = texture2D( bqWoodMap, clamp( bqUv, 0.0, 1.0 ) ).rgb;
+  diffuseColor.rgb *= bqWood / max( bqAlbedo, vec3( 1e-3 ) );
+}`;
+
 const lin = (v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
 
 // The sunlit colour of a bake: the mean of its brightest texels (88th..98th percentile), linear.
@@ -146,6 +159,14 @@ function albedoOf(tex) {
 }
 
 export function createSunPatch(sun) {
+  let woodMap = null;
+  const woodTexture = (renderer) => {
+    if (!woodMap) {
+      const max = renderer?.capabilities?.getMaxAnisotropy?.() || 8;
+      woodMap = createHardwoodTexture(max);
+    }
+    return woodMap;
+  };
   const uniforms = {
     bqSun: { value: new THREE.Color(0, 0, 0) },
     bqDir: { value: new THREE.Vector3(0, 1, 0) },
@@ -166,6 +187,7 @@ export function createSunPatch(sun) {
       if (mat.userData.sunRelit || !mat.map) return;
       mat.userData.sunRelit = true;
       const albedo = { value: albedoOf(mat.map) };
+      const wood = HARDWOOD_FLOOR.test(mat.name || '');
       const prev = mat.onBeforeCompile, prevKey = mat.customProgramCacheKey;
       mat.onBeforeCompile = (shader, renderer) => {
         prev.call(mat, shader, renderer);
@@ -173,11 +195,17 @@ export function createSunPatch(sun) {
         shader.vertexShader = shader.vertexShader
           .replace('#include <common>', '#include <common>\nvarying vec3 vBqWorld;\nvarying vec3 vBqNormal;')
           .replace('#include <project_vertex>', '#include <project_vertex>\n\tvBqWorld = ( modelMatrix * vec4( transformed, 1.0 ) ).xyz;\n\tvBqNormal = normalize( mat3( modelMatrix ) * normal );');
+        let pars = PARS, main = MAIN;
+        if (wood) {
+          shader.uniforms.bqWoodMap = { value: woodTexture(renderer) };
+          pars += WOOD_PARS;
+          main += WOOD_MAIN;
+        }
         shader.fragmentShader = shader.fragmentShader
-          .replace('#include <common>', `#include <common>\n${PARS}`)
-          .replace('#include <color_fragment>', `${MAIN}\n#include <color_fragment>`);
+          .replace('#include <common>', `#include <common>\n${pars}`)
+          .replace('#include <color_fragment>', `${main}\n#include <color_fragment>`);
       };
-      mat.customProgramCacheKey = () => `${prevKey.call(mat)}|sun`;
+      mat.customProgramCacheKey = () => `${prevKey.call(mat)}|sun${wood ? '|wood' : ''}`;
       mat.needsUpdate = true;
     },
     // dir = unit vector toward the sun; colour = sRGB numbers; strength = 1 reproduces the bake's own sunlit floor;
