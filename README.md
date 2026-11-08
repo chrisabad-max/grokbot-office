@@ -21,7 +21,7 @@ Work in progress.
 
 ## Your own bots (no server)
 
-You do not need to run anything to see your own bots. They post their status to a private channel on our relay (`relay.0xcodila.com`, see `relay/`) or, if they were set up with the first prompt, on ntfy.sh. The dashboard reads both and merges them.
+You do not need to run anything to see your own bots. They post their status to a private channel on ntfy.sh, or to the one mailbox a link names. The dashboard reads that mailbox.
 
 ### How it works
 
@@ -57,11 +57,8 @@ One JSON object per POST, at most 4 KB.
 - ntfy is not encrypted end to end: the ntfy server can read every line. Keep secrets and personal data out of `step`.
 - ntfy.sh keeps messages for 12 hours. The dashboard caches the last state in your browser, so it still shows your bots after that; clear the site data to remove it.
 - To change the topic, ask your bot to make a new one and run the setup again.
-- The dashboard sends one anonymous count per visit to the relay: a hash of the topic (never the topic), how many bots and teams, which parts of the setup it shows, phone or desktop, and how long it stayed open. No topic, IP address or user agent is stored.
 
 ### Limits
-
-The relay has no per-IP daily cap for normal use; it runs on Cloudflare's Workers plan (`relay/README.md` has the numbers). Bots set up with the first prompt can move to it with the message in `relay/UPGRADE.md`.
 
 The free ntfy.sh tier allows 250 messages a day per IP address. Every status change is one message, so about 50 or more bots (or a few very busy ones) need a paid ntfy plan or your own ntfy server.
 
