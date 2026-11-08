@@ -1,0 +1,23 @@
+# Publishes the public Lively package (lively/dist/grokbot-wallpaper-windows.zip, made by lively/build-public.ps1) as a
+# release for a tag like windows-v1.0, so GitHub counts its downloads next to the Mac .dmg's. The site links to
+# https://github.com/Bodila51/grokbot-wallpaper/releases/download/<tag>/grokbot-wallpaper-windows.zip
+# Not marked latest: .../releases/latest/download/GrokBotWallpaper.dmg must keep finding the Mac release.
+name: Windows package
+on:
+  push:
+    tags: ['windows-v*']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" lively/dist/grokbot-wallpaper-windows.zip --latest=false \
+            --title "Grok Bot Wallpaper for Windows ${GITHUB_REF_NAME#windows-v}" \
+            --notes "Live Grok Bot wallpaper for Lively Wallpaper (Windows 10 and 11). Install: https://github.com/${{ github.repository }}/blob/main/lively/README.md"

@@ -1,0 +1,73 @@
+/* Scene-owned styles: canvas, loading text and the quiet in-scene tags (CONTRACT v2.3 / v2.5). */
+
+.hq-scene { position: relative; overflow: hidden; background-color: #F6F6F8; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.hq-scene:active { cursor: grabbing; }
+.hq-scene.is-hovering { cursor: pointer; }
+/* The backdrop (white studio + the building's shadow aura) is drawn by the post pass (studio.js); the container only
+   holds the same colour for the first moments. */
+.hq-scene canvas.hq-canvas { position: relative; z-index: 1; display: block; width: 100%; height: 100%; }
+.hq-labels { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+
+/* Loader: a quiet label over a hairline, until the first floor drops in (the building then fades in under it).
+   The children fade in after a beat, so a fast (cached) load never flashes it. */
+.hq-loading {
+  position: absolute; z-index: 4; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  font: 500 13px/1 Inter, system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: .01em; color: #6E6E73;
+  pointer-events: none; transition: opacity .35s ease;
+}
+.hq-loading > * { animation: hq-loading-in .5s .2s ease-out both; }
+.hq-loading.is-done { opacity: 0; }
+.hq-loading-track {
+  position: relative; display: block; width: 112px; height: 2px; border-radius: 1px; overflow: hidden;
+  background: rgba(110, 110, 115, .16); background: color-mix(in srgb, currentColor 16%, transparent);
+}
+.hq-loading-track > i {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 36%; border-radius: inherit; background: currentColor; opacity: .75;
+  animation: hq-loading-run 1.25s cubic-bezier(.45, 0, .25, 1) infinite;
+}
+@keyframes hq-loading-in { from { opacity: 0; } }
+@keyframes hq-loading-run { from { transform: translateX(-100%); } to { transform: translateX(280%); } }
+:root[data-daylight="night"] .hq-loading { color: #A1A1A6; }
+
+/* --- in-scene tags: dark pill = selected bot, compact white pill = needs the user / hovered --- */
+.hqt {
+  display: flex; flex-direction: column; align-items: center;
+  pointer-events: none; user-select: none; -webkit-user-select: none;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+/* animate the children only: CSS2DRenderer owns the transform of .hqt itself */
+.hqt > * { animation: hqt-in .22s cubic-bezier(.2, .8, .2, 1); }
+.hqt[data-mode="off"] { display: none; }
+
+.hqt-pill {
+  display: flex; align-items: center; gap: 7px; max-width: 250px; height: 28px; padding: 0 12px 0 10px;
+  border-radius: 999px; box-sizing: border-box;
+  background: rgba(255, 255, 255, .8);
+  -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, .85);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .04), 0 6px 18px rgba(0, 0, 0, .10);
+  color: #1D1D1F; font-size: 12px; font-weight: 600; line-height: 1; white-space: nowrap; letter-spacing: -.003em;
+}
+.hqt-text { overflow: hidden; text-overflow: ellipsis; }
+.hqt-dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--c, #A1A1A6); }
+.hqt-stem { width: 1px; height: 14px; background: rgba(0, 0, 0, .18); }
+
+.hqt[data-mode="sel"] .hqt-pill { background: #1D1D1F; color: #fff; border-color: transparent; box-shadow: 0 8px 22px rgba(0, 0, 0, .22); }
+.hqt[data-mode="sel"] .hqt-stem { background: rgba(0, 0, 0, .4); }
+
+/* night: dark glass; the selected pill flips to light */
+:root[data-daylight="night"] .hqt-pill {
+  background: rgba(28, 28, 30, .66); border-color: rgba(255, 255, 255, .12); color: #F5F5F7;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+}
+:root[data-daylight="night"] .hqt-stem { background: rgba(255, 255, 255, .28); }
+:root[data-daylight="night"] .hqt[data-mode="sel"] .hqt-pill { background: #F5F5F7; color: #1D1D1F; border-color: transparent; }
+:root[data-daylight="night"] .hqt[data-mode="sel"] .hqt-stem { background: rgba(255, 255, 255, .55); }
+
+@keyframes hqt-in { from { opacity: 0; transform: translateY(4px) scale(.94); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hqt > * { animation: none; }
+  .hq-loading-track > i { animation: none; width: 100%; opacity: .3; }
+}

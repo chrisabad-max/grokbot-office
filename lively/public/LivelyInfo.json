@@ -1,0 +1,14 @@
+{
+  "AppVersion": "2.2.1.0",
+  "Title": "Grok Bot",
+  "Thumbnail": "thumbnail.jpg",
+  "Preview": "preview.gif",
+  "Desc": "The Grok Bot ball follows your cursor with its eyes and blinks, under a sky that follows the real sun. Optional: add your bots channel under Customise to see what your bots are doing. Needs internet: the wallpaper loads from bodila51.github.io and updates by itself.",
+  "Author": "0xcodila",
+  "License": null,
+  "Contact": "https://0xcodila.com/grokbot-wallpaper/",
+  "Type": 1,
+  "FileName": "index.html",
+  "Arguments": null,
+  "IsAbsolutePath": false
+}

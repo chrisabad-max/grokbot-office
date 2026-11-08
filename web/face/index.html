@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grok Bot Wallpaper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./face.css">
+</head>
+<body>
+  <div class="stars" aria-hidden="true"></div>
+  <i class="star1" aria-hidden="true"></i>
+  <div class="mist" aria-hidden="true"></div>
+  <div class="halo" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- the live cards: one small column; drag it anywhere (the spot is remembered), double-click puts it back -->
+  <section class="stack" id="w-stack" aria-label="My bots" hidden>
+    <article class="card team is-idle" id="team">
+      <div class="team__top">
+        <div class="team__big"><b class="num" id="n-working">0</b><span id="l-working">working</span></div>
+        <div class="team__list">
+          <span id="row-waiting"><em id="l-waiting">waiting</em><b class="num" id="n-waiting">0</b></span>
+          <span id="row-error"><em id="l-error">errors</em><b class="num" id="n-error">0</b></span>
+        </div>
+      </div>
+      <div class="meter" title="Weekly usage limit">
+        <span class="slider"><span class="slider__fill"></span></span>
+        <span class="meter__label">limit <b class="num" id="usage">0%</b></span>
+      </div>
+    </article>
+    <div class="needs" id="bot-needs"></div>
+    <article class="card crew is-idle">
+      <div class="crew__head"><span>All bots</span><b class="num" id="bot-total">0</b></div>
+      <div class="crew__grid" id="bot-grid"></div>
+      <span class="card__grab" aria-hidden="true"></span>
+    </article>
+  </section>
+  <div class="tip" id="tip" role="tooltip" hidden></div>
+
+  <div class="bot" aria-hidden="true">
+    <img class="ball" src="../assets/face/sphere.png" alt="" draggable="false">
+    <i class="tint tint--mul"></i>
+    <i class="tint tint--scr"></i>
+    <img class="eye eye--mul" data-eye="l" src="../assets/face/eye-l-mul.png" alt="" draggable="false">
+    <img class="eye eye--scr" data-eye="l" src="../assets/face/eye-l-scr.png" alt="" draggable="false">
+    <img class="eye eye--mul" data-eye="r" src="../assets/face/eye-r-mul.png" alt="" draggable="false">
+    <img class="eye eye--scr" data-eye="r" src="../assets/face/eye-r-scr.png" alt="" draggable="false">
+    <img class="eye-w" data-eye="l" src="../assets/face/eye-l-wht.png" alt="" draggable="false">
+    <img class="eye-w" data-eye="r" src="../assets/face/eye-r-wht.png" alt="" draggable="false">
+    <i class="edge"></i>
+    <i class="rim"></i>
+  </div>
+
+  <script type="module" src="./face.js"></script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Блобы: проверка генератора</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap" rel="stylesheet">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <style>
+    :root { --bg: #F3F4F6; --paper: #FFFFFF; --ink: #1D1D1F; --muted: #6E6E73; --line: #E3E3E8; --cell: #EFEAE2; --ok: #34C759; --bad: #FF3B30; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 Inter, system-ui, sans-serif; }
+    header, main { max-width: 1560px; margin: 0 auto; padding: 0 24px; }
+    header { padding-top: 24px; }
+    h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+    h2 { font-size: 16px; margin: 36px 0 4px; }
+    p.hint { color: var(--muted); margin: 0 0 12px; max-width: 880px; }
+    .bar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 14px 0 0; }
+    .seg { display: inline-flex; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+    .seg button { font: inherit; border: 0; background: none; padding: 5px 14px; border-radius: 999px; cursor: pointer; color: var(--muted); }
+    .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+    .bar label { color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+    .bar input { font: inherit; border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; width: 120px; }
+    .grid { display: grid; gap: 8px; }
+    .cell { background: var(--cell); border-radius: 14px; padding: 4px 4px 6px; text-align: center; min-width: 0; }
+    .cell canvas { display: block; width: 100%; height: auto; }
+    .cell small { display: block; color: var(--muted); font-size: 11.5px; line-height: 1.3; padding: 0 2px; overflow-wrap: anywhere; }
+    .cell b { display: block; font-size: 12.5px; font-weight: 600; }
+    .rowhead { align-self: center; font-weight: 600; font-size: 13px; color: var(--ink); padding-right: 8px; }
+    .colhead { text-align: center; font-weight: 600; font-size: 12.5px; color: var(--muted); }
+    .sw { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; border: 1px solid rgba(0,0,0,.15); }
+    .pair { display: grid; grid-template-rows: auto auto; gap: 4px; background: var(--cell); border-radius: 14px; padding: 4px; }
+    .pair .cell { background: transparent; padding: 0; }
+    .tag { font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .strip { background: var(--cell); border-radius: 14px; padding: 6px; margin: 8px 0; overflow-x: auto; }
+    .strip canvas { display: block; }
+    table { border-collapse: collapse; background: var(--paper); border-radius: 12px; overflow: hidden; font-variant-numeric: tabular-nums; }
+    th, td { padding: 5px 12px; border-bottom: 1px solid var(--line); text-align: right; font-size: 12.5px; }
+    th:first-child, td:first-child { text-align: left; }
+    td.ok { color: var(--ok); font-weight: 600; }
+    td.bad { color: var(--bad); font-weight: 700; }
+    #summary { font-weight: 700; margin: 10px 0; }
+    #summary.ok { color: var(--ok); }
+    #summary.bad { color: var(--bad); }
+    footer { height: 60px; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Генератор блобов: проверка</h1>
+  <p class="hint">Блобы без файла GLB собираются кодом из описания: форма, цвет, аксессуар. Освещение здесь такое же, как в дневном офисе.
+  Ниже: все формы в разных цветах, аксессуары, 15 демо-ботов (слева образец, справа собранный из описания в <code>web/data/demo-looks.json</code>),
+  блобы в масштабе офиса и автопроверка (треугольники, структура GLB, повторяемость).</p>
+  <div class="bar">
+    <span class="seg" id="views" role="group" aria-label="Ракурс">
+      <button data-view="iso" aria-pressed="true">Как в офисе</button>
+      <button data-view="q" aria-pressed="false">Три четверти</button>
+      <button data-view="front" aria-pressed="false">Спереди</button>
+    </span>
+    <label>Сид <input id="seed" value="demo" spellcheck="false"></label>
+  </div>
+</header>
+<main>
+  <section id="sec-app">
+    <h2>Как в приложении Grok Bot</h2>
+    <p class="hint">14 аватаров из выбора аватара в приложении, в том же порядке (14-й: круг с черенком). Сверху 3D-блоб спереди, снизу картинка для панелей из <code>assets/blobs/lib</code>.</p>
+    <div class="grid" id="app"></div>
+  </section>
+
+  <section id="sec-shapes">
+    <h2>Формы и цвета</h2>
+    <p class="hint">12 форм из закрытого списка. Чёрный проверяет, что глянец читается и на тёмном.</p>
+    <div class="grid" id="shapes"></div>
+  </section>
+
+  <section id="sec-acc">
+    <h2>Аксессуары</h2>
+    <p class="hint">none, glasses, stem, antenna, bow. Аксессуар не меняет размер самого блоба (в сцене блоб масштабируется по габариту).</p>
+    <div class="grid" id="accessories"></div>
+  </section>
+
+  <section id="sec-fallback">
+    <h2>Без описания: форма и цвет из хеша id</h2>
+    <p class="hint">Так выглядят боты, про которых Grok Bot ничего не записал. Один и тот же id всегда даёт один и тот же блоб.</p>
+    <div class="grid" id="fallback"></div>
+  </section>
+
+  <section id="sec-demo">
+    <h2>15 демо-ботов: образец и сборка из описания</h2>
+    <p class="hint">Слева: рукотворный GLB из <code>assets/blobs</code> (Blender). Справа: <code>generateBlob</code> по строке из <code>demo-looks.json</code>.</p>
+    <div class="grid" id="demo"></div>
+  </section>
+
+  <section id="sec-office">
+    <h2>В масштабе офиса</h2>
+    <p class="hint">48 px на метр, как при обычном приближении сцены; ниже то же в 2,2 раза крупнее. Первая строка образцы, вторая сборка.</p>
+    <div class="strip"><div class="tag">образец · 1:1</div><canvas id="strip-ref"></canvas><div class="tag">сборка · 1:1</div><canvas id="strip-gen"></canvas></div>
+    <div class="strip"><div class="tag">образец · ×2,2 (первые 8)</div><canvas id="strip-ref2"></canvas><div class="tag">сборка · ×2,2</div><canvas id="strip-gen2"></canvas></div>
+  </section>
+
+  <section id="sec-test">
+    <h2>Автопроверка</h2>
+    <p class="hint">Для каждой пары форма × аксессуар: не больше 6000 треугольников, корень <code>blob</code> с детьми <code>body</code>, <code>eye_L</code>, <code>eye_R</code>, низ на y = 0, габарит около 0,8 м, тот же вход даёт ту же геометрию.</p>
+    <div id="summary">…</div>
+    <div id="selftest"></div>
+  </section>
+</main>
+<footer></footer>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { generateBlob, SHAPES, ACCESSORIES, PALETTE } from './blobgen.js';
+import { hashShape, hash32, APP_SHAPES } from './looks.js';
+
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+const SHOW_COLORS = ['#FD690F', '#1E86FC', '#F93498', '#14C16F', '#F59312', '#000000', '#959595'];
+const SHAPE_NAMES = { cloud: 'облако', bubble: 'пузырь', flower: 'цветок', drop: 'капля', sphere: 'круг', rounded_cube: 'куб', pill: 'таблетка', triangle: 'треугольник', cone: 'конус', pentagon: 'пятиугольник', hexagon: 'шестиугольник', star4: 'звезда 4', star6: 'звезда 6', clover: 'клевер', rounded_square: 'квадрат', trio: 'трио' };
+const ACC_NAMES = { none: 'без', glasses: 'очки', stem: 'черенок', antenna: 'антенна', bow: 'бант' };
+const qs = new URLSearchParams(location.search);
+const state = { view: qs.get('view') || 'iso', seed: qs.get('seed') || 'demo' };
+const SCALE = Number(qs.get('scale')) || 1;          // ?scale=2 draws every cell twice as big (for close inspection)
+
+// ---------- renderer + the office's day lighting (daylight.js DAY, scene.js environment) ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.setClearColor(0x000000, 0);
+
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.55;
+const sun = new THREE.DirectionalLight('#FFE3BF', 2.1);
+{ const el = THREE.MathUtils.degToRad(58), az = THREE.MathUtils.degToRad(217); sun.position.set(Math.cos(el) * Math.cos(az), Math.sin(el), Math.cos(el) * Math.sin(az)).multiplyScalar(14); }
+const hemi = new THREE.HemisphereLight('#FFF3E3', '#D8C7B0', 1.25);
+const fill = new THREE.DirectionalLight('#E6EEFF', 0.45);
+fill.position.set(6, 5, 8);
+scene.add(sun, hemi, fill);
+
+const shadowTex = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  gr.addColorStop(0, 'rgba(0,0,0,0.38)'); gr.addColorStop(0.6, 'rgba(0,0,0,0.12)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+})();
+const shadowGeo = new THREE.PlaneGeometry(0.85, 0.85);
+const shadowMat = new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false });
+
+// ---------- same normalisation as Actor.setModel: biggest side = 1 m, centred, bottom at y = 0 ----------
+function fit(model) {
+  const box = new THREE.Box3().setFromObject(model);
+  const s = 1 / Math.max(...box.getSize(new THREE.Vector3()).toArray(), 0.01);
+  model.scale.multiplyScalar(s);
+  box.setFromObject(model);
+  const c = box.getCenter(new THREE.Vector3());
+  model.position.x -= c.x; model.position.z -= c.z; model.position.y -= box.min.y;
+  return model;
+}
+
+const VIEWS = {
+  iso: { dir: new THREE.Vector3(1, 1, 1).normalize(), yaw: 0.42 },
+  q: { dir: new THREE.Vector3(Math.sin(0.49) * Math.cos(0.35), Math.sin(0.35), Math.cos(0.49) * Math.cos(0.35)), yaw: 0 },
+  front: { dir: new THREE.Vector3(0, 0.04, 1).normalize(), yaw: 0 },
+};
+
+/** draw `items` [{model, x}] (x = metres along the screen's right axis) into a 2D canvas */
+function draw(canvas, items, { w, h, ppm, fixed = false, view = null }) {
+  const v = VIEWS[view || state.view];
+  canvas.width = Math.round(w * DPR); canvas.height = Math.round(h * DPR);
+  if (fixed) { canvas.style.width = `${w}px`; canvas.style.height = `${h}px`; }
+  renderer.setPixelRatio(1);
+  renderer.setSize(canvas.width, canvas.height, false);
+  const hw = w / ppm / 2, hh = h / ppm / 2;
+  const cam = new THREE.OrthographicCamera(-hw, hw, hh, -hh, 0.1, 60);
+  const target = new THREE.Vector3(0, 0.5, 0);
+  cam.position.copy(target).addScaledVector(v.dir, 20);
+  cam.lookAt(target);
+  cam.updateMatrixWorld();
+  const right = new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld, 0);
+  right.y = 0; right.normalize();
+  const holder = new THREE.Group();
+  for (const it of items) {
+    const pivot = new THREE.Group();
+    pivot.add(it.model);
+    pivot.rotation.y = v.yaw;
+    const sh = new THREE.Mesh(shadowGeo, shadowMat);
+    sh.rotation.x = -Math.PI / 2; sh.position.y = 0.006; sh.renderOrder = 1;
+    const slot = new THREE.Group();
+    slot.add(pivot, sh);
+    slot.position.copy(right).multiplyScalar(it.x || 0);
+    holder.add(slot);
+  }
+  scene.add(holder);
+  renderer.render(scene, cam);
+  scene.remove(holder);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(renderer.domElement, 0, 0);
+}
+
+// ---------- cells ----------
+const jobs = [];                                   // re-drawn when the view or the seed changes
+function cell(parent, { title, sub, color, make, size = 150, ppm = 90, view = null, thumb = null }) {
+  const el = document.createElement('div');
+  el.className = 'cell';
+  const cv = document.createElement('canvas');
+  el.append(cv);
+  if (thumb) { const im = new Image(); im.src = thumb; im.alt = ''; im.style.cssText = 'display:block;width:64%;margin:0 auto'; el.append(im); }
+  if (title) { const b = document.createElement('b'); b.textContent = title; el.append(b); }
+  const sm = document.createElement('small');
+  el.append(sm);
+  parent.append(el);
+  const job = async () => {
+    const model = await make();
+    const tris = model.userData?.tris;
+    sm.innerHTML = (color ? `<i class="sw" style="background:${color}"></i>` : '') + (sub || '') + (tris ? ` · ${tris}△` : '');
+    draw(cv, [{ model: fit(model) }], { w: Math.round(size * SCALE), h: Math.round(size * SCALE), ppm: ppm * SCALE, view });
+  };
+  jobs.push(job);
+  return el;
+}
+
+function loadGLB(id) {
+  return new Promise((res) => new GLTFLoader().load(`../../assets/blobs/${id}.glb`, (g) => res(g.scene), undefined, () => res(null)));
+}
+const glbCache = new Map();
+const glb = (id) => { if (!glbCache.has(id)) glbCache.set(id, loadGLB(id)); return glbCache.get(id).then((s) => s && s.clone(true)); };
+
+// 0. the app's picker: 14 avatars in its order, front view, + the panel thumbnail
+{
+  const root = document.getElementById('app');
+  root.style.gridTemplateColumns = 'repeat(5, minmax(0, 170px))';
+  const APP = [...APP_SHAPES.map((sh) => [sh, 'none']), ['sphere', 'stem']];
+  APP.forEach(([sh, acc], i) => cell(root, { title: `${i + 1} · ${sh}${acc !== 'none' ? ' + ' + acc : ''}`, view: 'front', size: 170, ppm: 120,
+    thumb: `../../assets/blobs/lib/${acc === 'stem' ? 'sphere_stem' : sh}-FD690F.png`, make: async () => generateBlob({ shape: sh, color: '#FD690F', accessory: acc, seed: 'app' }) }));
+}
+
+// 1. shapes x colours
+{
+  const root = document.getElementById('shapes');
+  root.style.gridTemplateColumns = `110px repeat(${SHOW_COLORS.length}, minmax(0, 1fr))`;
+  root.append(document.createElement('div'));
+  for (const c of SHOW_COLORS) { const d = document.createElement('div'); d.className = 'colhead'; d.innerHTML = `<i class="sw" style="background:${c}"></i>${c}`; root.append(d); }
+  for (const sh of SHAPES) {
+    const rh = document.createElement('div'); rh.className = 'rowhead'; rh.textContent = `${sh} · ${SHAPE_NAMES[sh]}`; root.append(rh);
+    for (const c of SHOW_COLORS) cell(root, { make: async () => generateBlob({ shape: sh, color: c, seed: `${state.seed}:${sh}:${c}` }), size: 170, ppm: 100 });
+  }
+}
+
+// 2. accessories
+{
+  const root = document.getElementById('accessories');
+  const rows = [['sphere', '#FD690F'], ['hexagon', '#1E86FC'], ['cone', '#F93498'], ['clover', '#14C16F'], ['triangle', '#FFC21A'], ['trio', '#F59312']];
+  root.style.gridTemplateColumns = `110px repeat(${ACCESSORIES.length}, minmax(0, 1fr))`;
+  root.append(document.createElement('div'));
+  for (const a of ACCESSORIES) { const d = document.createElement('div'); d.className = 'colhead'; d.textContent = `${a} · ${ACC_NAMES[a]}`; root.append(d); }
+  for (const [sh, c] of rows) {
+    const rh = document.createElement('div'); rh.className = 'rowhead'; rh.textContent = sh; root.append(rh);
+    for (const a of ACCESSORIES) cell(root, { make: async () => generateBlob({ shape: sh, color: c, accessory: a, seed: `${state.seed}:${sh}:${a}` }), size: 170, ppm: 100 });
+  }
+}
+
+// 3. hash fallback: ids nobody described
+{
+  const root = document.getElementById('fallback');
+  root.style.gridTemplateColumns = 'repeat(auto-fill, minmax(150px, 1fr))';
+  const ids = ['news-digest', 'seo-helper', 'mail-triage', 'cfo-assistant', 'support-bot', 'research-lab', 'daily-standup', 'invoice-bot', 'translator', 'qa-runner', 'brand-voice', 'calendar-bot'];
+  for (const id of ids) cell(root, { title: id, make: async () => generateBlob({ seed: id }), sub: hashShape(id), size: 150, ppm: 95 });
+}
+
+// 4. 15 demo bots: hand-made GLB above, generated from description below
+let demoLooks = {};
+const DEMO_IDS = ['grok-bot', 'jevopus', 'x-writer', 'banner-visuals', 'analytics-analyst', 'competitor-watch', 'qt-scout', 'ideas-sparring', 'bookmarks-brain', 'codila-x-researcher', 'trendy-x', 'substack', 'x-ads-manager', 'warren-buffett', 'finance-team'];
+{
+  const root = document.getElementById('demo');
+  root.style.gridTemplateColumns = 'repeat(auto-fill, minmax(230px, 1fr))';
+  for (const id of DEMO_IDS) {
+    const pair = document.createElement('div');
+    pair.className = 'pair';
+    const t = document.createElement('div'); t.className = 'tag'; t.style.textAlign = 'center'; t.textContent = id;
+    pair.append(t);
+    const inner = document.createElement('div');
+    inner.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:4px';
+    pair.append(inner);
+    root.append(pair);
+    cell(inner, { make: async () => (await glb(id)) || new THREE.Group(), sub: 'образец', size: 112, ppm: 80 });
+    cell(inner, { make: async () => generateBlob({ ...demoLooks[id], seed: id }), sub: 'сборка', size: 112, ppm: 80, color: null });
+  }
+}
+
+// 5. strips at office scale
+function strip(id, make, { ppm, count }) {
+  const cv = document.getElementById(id);
+  jobs.push(async () => {
+    const ids = DEMO_IDS.slice(0, count);
+    const gap = 1.6;
+    const items = [];
+    for (let i = 0; i < ids.length; i++) items.push({ model: fit(await make(ids[i])), x: (i - (ids.length - 1) / 2) * gap });
+    draw(cv, items, { w: Math.round(ids.length * gap * ppm + 60), h: Math.round(1.7 * ppm + 30), ppm, fixed: true });
+  });
+}
+strip('strip-ref', async (id) => (await glb(id)) || new THREE.Group(), { ppm: 48, count: 15 });
+strip('strip-gen', async (id) => generateBlob({ ...demoLooks[id], seed: id }), { ppm: 48, count: 15 });
+strip('strip-ref2', async (id) => (await glb(id)) || new THREE.Group(), { ppm: 106, count: 8 });
+strip('strip-gen2', async (id) => generateBlob({ ...demoLooks[id], seed: id }), { ppm: 106, count: 8 });
+
+// 6. self test
+function selftest() {
+  const rows = [];
+  let fails = 0;
+  const t0 = performance.now();
+  const sig = (g) => g.children.map((c) => `${c.name}:${c.geometry.attributes.position.count}:${c.geometry.index.count}`).join('|');
+  const hashPos = (g) => { let h = 0; for (const c of g.children) { const a = c.geometry.attributes.position.array; for (let i = 0; i < a.length; i += 7) h = (Math.imul(h, 31) + Math.round(a[i] * 1e5)) | 0; for (const k of c.position.toArray()) h = (Math.imul(h, 31) + Math.round(k * 1e5)) | 0; } return h; };
+  const bad = [];
+  for (const sh of SHAPES) {
+    let maxTris = 0, maxDim = [9, 0], okStruct = true, okFloor = true, okDet = true, okCache = true;
+    for (const acc of ACCESSORIES) {
+      const a = generateBlob({ shape: sh, color: '#FD690F', accessory: acc, seed: 'st' });
+      const b = generateBlob({ shape: sh, color: '#FD690F', accessory: acc, seed: 'st' });
+      maxTris = Math.max(maxTris, a.userData.tris);
+      const names = a.children.map((c) => c.name);
+      if (a.name !== 'blob' || !names.includes('body') || !names.includes('eye_L') || !names.includes('eye_R') || (acc !== 'none') !== names.includes('extra')) okStruct = false;
+      const box = new THREE.Box3().setFromObject(a), s = box.getSize(new THREE.Vector3());
+      const dim = Math.max(s.x, s.y, s.z);
+      maxDim = [Math.min(maxDim[0], dim), Math.max(maxDim[1], dim)];
+      if (Math.abs(box.min.y) > 1e-4) okFloor = false;
+      if (hashPos(a) !== hashPos(b) || sig(a) !== sig(b)) okDet = false;
+      if (a.getObjectByName('body').geometry !== b.getObjectByName('body').geometry) okCache = false;
+      if (a.userData.tris > 6000) bad.push(`${sh}/${acc}`);
+    }
+    const ok = maxTris <= 6000 && okStruct && okFloor && okDet && okCache && maxDim[0] > 0.7 && maxDim[1] < 1.0;
+    if (!ok) fails++;
+    rows.push(`<tr><td>${sh}</td><td>${maxTris}</td><td>${maxDim[0].toFixed(2)}–${maxDim[1].toFixed(2)}</td><td class="${okStruct ? 'ok' : 'bad'}">${okStruct ? 'ok' : 'нет'}</td><td class="${okFloor ? 'ok' : 'bad'}">${okFloor ? 'ok' : 'нет'}</td><td class="${okDet ? 'ok' : 'bad'}">${okDet ? 'ok' : 'нет'}</td><td class="${okCache ? 'ok' : 'bad'}">${okCache ? 'ok' : 'нет'}</td><td class="${maxTris <= 6000 ? 'ok' : 'bad'}">${maxTris <= 6000 ? 'ok' : 'превышен'}</td></tr>`);
+  }
+  // unknown input must still give a blob (hash shape, palette colour)
+  const odd = generateBlob({ shape: 'banana', color: 'red', accessory: 'hat', seed: 'odd-1' });
+  const oddOk = odd.name === 'blob' && SHAPES.includes(odd.userData.look.shape) && /^#[0-9A-F]{6}$/.test(odd.userData.look.color) && odd.userData.look.accessory === 'none';
+  if (!oddOk) fails++;
+  const ms = performance.now() - t0;
+  document.getElementById('selftest').innerHTML = `<table><tr><th>Форма</th><th>макс. △</th><th>габарит, м</th><th>структура</th><th>низ y=0</th><th>повтор</th><th>кэш</th><th>бюджет 6000</th></tr>${rows.join('')}</table>
+    <p class="hint">Неизвестные значения (shape «banana», цвет «red», аксессуар «hat»): ${oddOk ? 'ok, форма и цвет из хеша' : 'ОШИБКА'}. Генерация всех 60 вариантов и повторов: ${ms.toFixed(0)} мс. ${bad.length ? 'Больше бюджета: ' + bad.join(', ') : ''}</p>`;
+  const sum = document.getElementById('summary');
+  sum.textContent = fails ? `ПРОВЕРКА: ОШИБОК ${fails}` : 'ПРОВЕРКА: ВСЁ ОК';
+  sum.className = fails ? 'bad' : 'ok';
+  document.title = sum.textContent;
+}
+
+// ---------- boot ----------
+async function renderAll() {
+  for (const j of jobs) await j();
+  document.documentElement.dataset.ready = '1';
+}
+
+document.getElementById('views').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.view = b.dataset.view;
+  for (const x of document.querySelectorAll('#views button')) x.setAttribute('aria-pressed', String(x === b));
+  renderAll();
+});
+if (qs.get('only')) for (const sec of document.querySelectorAll('main > section')) sec.hidden = sec.id !== `sec-${qs.get('only')}`;   // ?only=shapes|acc|fallback|demo|office|test
+document.getElementById('seed').value = state.seed;
+document.getElementById('seed').addEventListener('change', (e) => { state.seed = e.target.value || 'demo'; renderAll(); });
+for (const x of document.querySelectorAll('#views button')) x.setAttribute('aria-pressed', String(x.dataset.view === state.view));
+
+try { demoLooks = await (await fetch('../data/demo-looks.json')).json(); } catch { demoLooks = {}; }
+selftest();
+await renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Grok Bot Dashboard</title>
+  <meta name="description" content="A live 3D office of your Grok Bot bots: who is working, who waits for you, what got done.">
+  <!-- the link preview (Telegram, X, iMessage): the dashboard itself -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Grok Bot Dashboard">
+  <meta property="og:title" content="Grok Bot Dashboard">
+  <meta property="og:description" content="A live 3D office of your Grok Bot bots: who is working, who waits for you, what got done.">
+  <meta property="og:image" content="https://bodila51.github.io/grokbot-wallpaper/assets/brand/og-dashboard.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Grok Bot Dashboard">
+  <meta name="twitter:image" content="https://bodila51.github.io/grokbot-wallpaper/assets/brand/og-dashboard.png">
+  <link rel="icon" type="image/png" href="../assets/brand/logo-mark.png">
+  <link rel="apple-touch-icon" href="../assets/brand/logo-mark.png">
+  <meta name="theme-color" content="#F3F4F6">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./scene/scene.css">
+  <link rel="stylesheet" href="./ui/ui.css">
+  <link rel="stylesheet" href="./share/share.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+      }
+    }
+  </script>
+  <!-- the two big downloads start with the page, not after the scripts that ask for them (after the import map) -->
+  <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js">
+  <link rel="preload" href="../assets/office/office.glb" as="fetch" crossorigin>
+</head>
+<body>
+  <main id="scene" aria-label="Office"><div class="hq-loading" role="status"><span class="hq-loading-label">Building the office</span><span class="hq-loading-track"><i></i></span></div></main>
+  <header id="topbar"></header>
+  <nav id="floors" aria-label="Floors"></nav>
+  <aside id="panel" aria-label="Bot card and floor team"></aside>
+  <section id="feed" aria-label="Event feed"></section>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

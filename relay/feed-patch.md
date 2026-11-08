@@ -1,0 +1,210 @@
+# web/feed.js: read ntfy.sh and the relay together
+
+For the main session to apply; this folder does not change `web/feed.js` itself.
+
+```bash
+git apply relay/feed.patch
+```
+
+Applied in 55ecf77 with `RELAY = 'https://relay.0xcodila.com'` (the diff below still shows the placeholder it was
+written with), and the beacon was extended after it; `web/feed.js` is the current version. The patch is the diff below; `relay/feed.patch` is
+the same diff as a file. It applies cleanly to `web/feed.js` as of 2026-11-02 (md5 `ece88c76…`).
+
+What changes:
+
+1. A plain link `#<topic>` now reads the same topic on two mailboxes and merges them: the relay (bots set up with the new
+   prompt) and ntfy.sh (bots set up with the first prompt, which keep posting there with no action from their owners).
+   `#<topic>&ntfy=<server>` still reads that one server only, as before.
+2. Lines are deduplicated by mailbox + id, and by (time, text) across mailboxes, so a bot that posts to both shows once.
+3. The relay is followed over a WebSocket (`/<topic>/ws`) that its server sleeps through; a `ping` every 60 s is answered
+   without waking it, and a link silent for 150 s is restarted (laptop sleep). ntfy.sh stays on EventSource.
+   Every (re)connect of either one catches up with `?since=<last id>`, so the first connect no longer misses lines posted
+   during the history fetch.
+4. The cache moves from `bothq.feed.https://ntfy.sh.<topic>` to `bothq.feed.<topic>` (merged), and the old key is read
+   once, so nobody's office goes empty after the update.
+5. One anonymous beacon per page load (`beacon()` at the end): `{h: first 16 hex of SHA-256(topic), bots, src}` to
+   `RELAY/_beacon`, by `sendBeacon` with a plain-text body (no CORS preflight), a `keepalive` fetch as fallback, every
+   failure ignored. The topic itself is never sent.
+
+Tested in Node 25 against two local relays (one standing in for ntfy.sh): history from both, the old cache migrated,
+live lines over WS and SSE, a line posted to both shown once, the SSE reconnect caught up, the beacon counted as
+`src: "both"`.
+
+Same issue elsewhere, not in this patch: `landing/index.html:849` (the "did your bot post yet" check) and
+`web/face/face.js:607` still read ntfy.sh only. Once the new prompt is out, the landing check must poll the relay too,
+or new users will never see their first status there.
+
+```diff
+--- a/web/feed.js
++++ b/web/feed.js
+@@ -1,8 +1,10 @@
+-// Bots-only mode: the office reads the user's bots straight from their ntfy.sh channel. No server, no tunnel.
+-// The link is …/#<topic> (optionally &ntfy=<https server>). The topic lives in the hash, so it never reaches any
+-// server but ntfy. The same reducer the local server uses (lib/state.js) turns the lines into the office's state.
+-// ntfy keeps 12 hours, so the newest lines are cached per topic in localStorage and replayed first: after a quiet
+-// night the office is not empty, every bot is still there, resting.
++// Bots-only mode: the office reads the user's bots straight from their channel. No server, no tunnel.
++// The link is …/#<topic> (optionally &ntfy=<https server>). A plain link reads the same topic on two mailboxes and merges
++// them: our relay (RELAY, relay/ in this repo, where bots set up with the current prompt post) and ntfy.sh (where bots
++// set up with the first prompt still post). &ntfy=<server> reads that one server only. The topic lives in the hash, so
++// it never reaches any server but those. The same reducer the local server uses (lib/state.js) turns the lines into the
++// office's state. Both keep 12 hours, so the newest lines are cached per topic in localStorage and replayed first: after
++// a quiet night the office is not empty, every bot is still there, resting.
+ //
+ // Lines on the channel (one JSON object per message, at most 4 KB, anything else is dropped):
+ //   {"bot":"…","status":"working|idle|waiting_user|error|done","step":"…"}     a status change
+@@ -16,71 +18,104 @@
+ // state.routines (every bot's routines, soonest first), for the «Finished» and «Routines» panels.
+ import { StateStore, botIdFor } from './lib/state.js';
+ 
+-const MAX_LINE = 4096, KEEP = 600, TICK_MS = 30e3, DAY_MS = 24 * 3600e3;
++const RELAY = 'https://grokbot-relay.SUBDOMAIN.workers.dev', NTFY = 'https://ntfy.sh';
++const MAX_LINE = 4096, KEEP = 600, TICK_MS = 30e3, DAY_MS = 24 * 3600e3, PING_MS = 60e3;
+ const HANDMADE = new Set(['grok-bot', 'jevopus', 'x-writer', 'banner-visuals', 'analytics-analyst', 'competitor-watch', 'qt-scout',
+   'ideas-sparring', 'bookmarks-brain', 'codila-x-researcher', 'trendy-x', 'substack', 'x-ads-manager', 'warren-buffett', 'finance-team']);   // assets/blobs/<id>.glb
+ 
+-/** `#<topic>` or `#<topic>&ntfy=<server>` -> { topic, server }, else null. */
++/** `#<topic>` -> { topic, servers: [relay, ntfy.sh] }; `#<topic>&ntfy=<server>` -> that server only; else null. */
+ export function feedFromHash(hash) {
+   const m = /^#([A-Za-z0-9_-]{6,64})(?:&ntfy=([^&]+))?$/.exec(hash || '');
+   if (!m) return null;
+-  let server = 'https://ntfy.sh';
++  let servers = [RELAY, NTFY];
+   if (m[2]) {
+     try {
+       const u = new URL(decodeURIComponent(m[2]));
+-      if (u.protocol === 'https:' || u.hostname === 'localhost') server = (u.origin + u.pathname).replace(/\/+$/, '');
+-    } catch { /* not a URL: stay on ntfy.sh */ }
++      if (u.protocol === 'https:' || u.hostname === 'localhost') servers = [(u.origin + u.pathname).replace(/\/+$/, '')];
++    } catch { /* not a URL: both defaults */ }
+   }
+-  return { topic: m[1], server };
++  return { topic: m[1], servers };
+ }
+ 
+-/** Rebuild from cache + the channel's last 12 h, then follow it live. Calls onState(state) on every change. */
+-export async function connectFeed({ topic, server }, onState) {
+-  const base = `${server}/${encodeURIComponent(topic)}`;
+-  const cacheKey = `bothq.feed.${server}.${topic}`;
++/** Rebuild from cache + each mailbox's last 12 h, then follow them live. Calls onState(state) on every change. */
++export async function connectFeed({ topic, servers }, onState) {
++  const sources = servers.map((server) => ({ server, tag: server === RELAY ? 'relay' : 'ntfy', base: `${server}/${encodeURIComponent(topic)}`, lastId: null }));
++  const cacheKey = sources.length > 1 ? `bothq.feed.${topic}` : `bothq.feed.${servers[0]}.${topic}`;
++  const oldKey = `bothq.feed.${NTFY}.${topic}`;         // the cache from before the relay: all of it came from ntfy.sh
+   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Sofia';
+   const store = new StateStore({ tz, hasAvatar: (id) => HANDMADE.has(id) });   // others get a generated blob, no 404 probe
+   const cfg = {};                                        // per bot name: { look, chat_url } -> the store's bots config
+   const routines = new Map();                            // bot id -> { name, items }
+-  let lines = [], lastId = null, saveTimer = 0;
++  let lines = [], saveTimer = 0;
+   const seen = new Set();
+ 
+-  try { lines = JSON.parse(localStorage.getItem(cacheKey)) || []; } catch { lines = []; }
+-  try {
+-    const text = await (await fetch(`${base}/json?poll=1&since=12h`, { cache: 'no-store' })).text();
+-    for (const row of text.split('\n')) if (row) keep(JSON.parse(row));
+-  } catch { /* offline: the cache still shows the last known office */ }
+-  lines = lines.filter((l) => !seen.has(l.id) && seen.add(l.id)).sort((a, b) => a.time - b.time || (a.id < b.id ? -1 : 1));
++  lines = cached(cacheKey).map((l) => ({ ...l, src: l.src || sources[0].tag }));
++  if (sources.length > 1) lines.push(...cached(oldKey).map((l) => ({ ...l, src: l.src || 'ntfy' })));
++  await Promise.all(sources.map(async (s) => {
++    try {
++      const text = await (await fetch(`${s.base}/json?poll=1&since=12h`, { cache: 'no-store' })).text();
++      for (const row of text.split('\n')) if (row) keep(s, JSON.parse(row));
++    } catch { /* offline or down: the other mailbox and the cache still show the office */ }
++  }));
++  lines = lines.filter(fresh).sort((a, b) => a.time - b.time || (a.id < b.id ? -1 : 1));
+   for (const l of lines) ingest(l, true);
+-  lastId = lines.at(-1)?.id ?? null;
++  for (const s of sources) s.lastId = lines.findLast((l) => l.src === s.tag)?.id ?? null;
+   save();
++  if (sources.length > 1) try { localStorage.removeItem(oldKey); } catch { /* private mode */ }
+   publish();
++  beacon(topic, lines, store);
+ 
+-  const live = new EventSource(`${base}/sse`);
+-  let opened = false;
+-  live.onopen = () => { if (opened) catchUp(); opened = true; };   // after a reconnect, fetch what was missed
+-  live.onmessage = (e) => { try { if (take(JSON.parse(e.data))) publish(); } catch { /* keepalive or junk */ } };
++  for (const s of sources) follow(s);
+   setInterval(() => { const v = store.version, s = store.snapshot(); if (store.version !== v) onState(extras(s)); }, TICK_MS);
+ 
+-  function keep(m) {                                     // a message of the history request, into `lines`
+-    if (m?.event === 'message' && typeof m.id === 'string') lines.push({ id: m.id, time: Number(m.time) || 0, message: m.message });
++  function cached(key) {
++    try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; }
++  }
++  function fresh(l) {                                    // once per mailbox id, and once per (time, text) across mailboxes
++    const a = `${l.src} ${l.id}`, b = `${l.time} ${l.message}`;
++    if (seen.has(a) || seen.has(b)) return false;
++    seen.add(a).add(b);
++    return true;
++  }
++  function keep(s, m) {                                  // a message of a history request, into `lines`
++    if (m?.event === 'message' && typeof m.id === 'string') lines.push({ id: m.id, time: Number(m.time) || 0, message: m.message, src: s.tag });
+   }
+-  function take(m) {                                     // a live message: new -> ingest; true if the office changed
+-    if (m?.event !== 'message' || typeof m.id !== 'string' || seen.has(m.id)) return false;
+-    seen.add(m.id);
+-    const l = { id: m.id, time: Number(m.time) || Date.now() / 1000, message: m.message };
++  function take(s, m) {                                  // a live message: new -> ingest; true if the office changed
++    if (m?.event !== 'message' || typeof m.id !== 'string') return false;
++    s.lastId = m.id;
++    const l = { id: m.id, time: Number(m.time) || Date.now() / 1000, message: m.message, src: s.tag };
++    if (!fresh(l)) return false;
+     lines.push(l);
+     if (lines.length > KEEP * 1.5) lines = lines.slice(-KEEP);
+-    lastId = l.id;
+     clearTimeout(saveTimer);
+     saveTimer = setTimeout(save, 2000);
+     return ingest(l, false);
+   }
+-  async function catchUp() {
++  function follow(s) {                                   // ntfy: an event stream; the relay: a WebSocket its server sleeps through
++    const on = (data) => { try { if (take(s, JSON.parse(data))) publish(); } catch { /* keepalive or junk */ } };
++    if (s.tag !== 'relay') {
++      const live = new EventSource(`${s.base}/sse`);
++      live.onopen = () => catchUp(s);                    // also after a reconnect: fetch what was missed
++      live.onmessage = (e) => on(e.data);
++      return;
++    }
++    let wait = 1e3, heard = Date.now();
++    (function open() {
++      const ws = new WebSocket(`${s.base.replace(/^http/, 'ws')}/ws`);
++      const ping = setInterval(() => {                   // "pong" comes back without waking the relay
++        if (Date.now() - heard > 2.5 * PING_MS) ws.close();   // silent: a dead link after sleep, start over
++        else if (ws.readyState === 1) ws.send('ping');
++      }, PING_MS);
++      ws.onopen = () => { wait = 1e3; heard = Date.now(); catchUp(s); };
++      ws.onmessage = (e) => { heard = Date.now(); if (e.data !== 'pong') on(e.data); };
++      ws.onclose = () => { clearInterval(ping); setTimeout(open, wait); wait = Math.min(wait * 2, 60e3); };
++    })();
++  }
++  async function catchUp(s) {
+     try {
+-      const text = await (await fetch(`${base}/json?poll=1&since=${lastId ?? '12h'}`, { cache: 'no-store' })).text();
++      const text = await (await fetch(`${s.base}/json?poll=1&since=${s.lastId ?? '12h'}`, { cache: 'no-store' })).text();
+       let changed = false;
+-      for (const row of text.split('\n')) if (row && take(JSON.parse(row))) changed = true;
++      for (const row of text.split('\n')) if (row && take(s, JSON.parse(row))) changed = true;
+       if (changed) publish();
+     } catch { /* the stream retries by itself */ }
+   }
+@@ -148,4 +183,16 @@
+   function save() { try { localStorage.setItem(cacheKey, JSON.stringify(lines.slice(-KEEP))); } catch { /* private mode: not cached */ } }
+ }
+ 
++/** One anonymous ping per page load, for the install count: a hash of the topic (never the topic), how many bots, which mailbox. */
++async function beacon(topic, lines, store) {
++  try {
++    const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(topic)));
++    const h = [...digest.slice(0, 8)].map((b) => b.toString(16).padStart(2, '0')).join('');
++    const tags = new Set(lines.map((l) => l.src));
++    const src = tags.has('relay') ? (tags.has('ntfy') ? 'both' : 'relay') : tags.has('ntfy') ? 'ntfy' : 'none';
++    const body = JSON.stringify({ h, bots: store.bots.size, src });   // a string goes as text/plain: no CORS preflight
++    if (!navigator.sendBeacon?.(`${RELAY}/_beacon`, body)) fetch(`${RELAY}/_beacon`, { method: 'POST', body, keepalive: true }).catch(() => {});
++  } catch { /* stats are optional */ }
++}
++
+ function isMap(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
+```

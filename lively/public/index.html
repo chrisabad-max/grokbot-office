@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grok Bot</title>
+<style>html, body { margin: 0; height: 100%; background: #010F2E; }</style>
+<script>
+// Grok Bot for Lively (the public package, lively/build-public.ps1): opens the live wallpaper on GitHub Pages, so it
+// updates by itself, with Lively's settings in the link. Lively calls livelyPropertyListener(name, value) for every
+// setting once a page has loaded: here the first values go into the link (?bot=black, #<channel>, as face.js reads
+// them), and on the wallpaper page face.js takes every later change itself.
+// It leaves only once the site answers: at Windows startup Lively often runs before the network, and a redirect then
+// would leave the browser's error page as the wallpaper.
+const FACE = 'https://bodila51.github.io/grokbot-wallpaper/face/';
+const PROBE = new URL('../assets/face/grain.png', FACE).href;   // a small image the wallpaper itself loads
+
+const h = new Date().getHours();                        // until then, roughly the wallpaper's own sky
+document.documentElement.style.background = h >= 7 && h < 19 ? 'linear-gradient(#88BAF9, #E2E6F3)' : 'linear-gradient(#010F2E, #29457D)';
+
+const got = {};
+let settled = false, online = false, left = false;
+function go() {
+  if (left || !settled || !online) return;
+  left = true;
+  const feed = String(got.feed ?? '').trim();
+  location.replace(FACE + (Number(got.botColor) === 1 ? '?bot=black' : '') +
+    (feed ? `#${encodeURIComponent(feed).replace(/%40/g, '@')}` : ''));
+}
+window.livelyPropertyListener = (name, value) => {
+  got[name] = value;
+  if ('botColor' in got && 'feed' in got) { settled = true; go(); }
+};
+addEventListener('load', () => setTimeout(() => { settled = true; go(); }, 1500));   // outside Lively no settings come
+
+let wait = 1e3, timer = 0;
+function reach() {
+  clearTimeout(timer);
+  const img = new Image();
+  img.onload = () => { online = true; go(); };
+  img.onerror = () => { timer = setTimeout(reach, wait); wait = Math.min(wait * 2, 30e3); };
+  img.src = `${PROBE}?t=${Date.now()}`;                  // never the cached copy: that loads offline too
+}
+addEventListener('online', () => { wait = 1e3; reach(); });
+reach();
+</script>
+</html>

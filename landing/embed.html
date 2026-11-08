@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Grok Bot Wallpaper</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://0xcodila.com/grokbot-wallpaper/">
+<link rel="icon" href="../assets/brand/logo-mark.png" type="image/png">
+<link rel="preload" href="../fonts/host-grotesk-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../face/face.css">
+<style>
+/* The X Player Card (twitter:player on the landing), served at embed/: the live wallpaper on its own, the white or
+   black pick and one way out to the full site (downloads can't start inside X's frame). It runs the wallpaper's own
+   page: landing/assemble.mjs puts web/face/index.html's body in below, so this never falls behind the wallpaper.
+   It works in X's frame and opened on its own (X on a phone opens it full screen); nothing waits for the frame around it. */
+@font-face {
+  font-family: 'Host Grotesk Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 800;
+  src: url(../fonts/host-grotesk-latin-wght-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+:root {
+  --ink: #1D1D1F; --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --in: clamp(12px, 2.2vw, 28px);                              /* the inset of everything from the frame's edges */
+  --top: calc(var(--in) + clamp(28px, 2.7vw, 34px) + 6px);     /* the bottom of the top row */
+  --sky: calc(100vh - 0.45 * var(--bw));                       /* where the ball's top is (face.css: --bw) */
+}
+.stack, .tip { display: none !important; }                     /* no bot cards here: the bot and its sky */
+.ui { position: fixed; inset: 0; z-index: 5; pointer-events: none; color: var(--ink); font-family: 'Host Grotesk Variable', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; transition: color 600ms var(--ease-out); }
+.ui > * { pointer-events: auto; }
+.sky-dark .ui { color: #F5F5F7; }
+.brand { position: absolute; top: var(--in); left: var(--in); display: inline-flex; align-items: center; gap: 9px; height: clamp(28px, 2.7vw, 34px); font-size: clamp(13px, 1.2vw, 16px); font-weight: 600; letter-spacing: -.012em; pointer-events: none; }
+.brand img { display: block; width: clamp(22px, 2.2vw, 28px); height: auto; border-radius: 7px; }
+/* white or black: a row of two, a dark thumb slides under the picked one (the landing's pick, laid flat) */
+.pick { position: absolute; top: var(--in); right: var(--in); display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding: 3px; border-radius: 999px; background: rgba(255, 255, 255, .92); box-shadow: 0 0 0 1px rgba(0, 0, 0, .06); }
+.pick button {
+  position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: clamp(28px, 2.7vw, 34px); padding: 0 clamp(11px, 1.3vw, 16px);
+  border: 0; border-radius: 999px; background: none; color: var(--ink); font: inherit; font-size: clamp(12px, 1.1vw, 14px); font-weight: 500; cursor: pointer;
+  transition: color 200ms ease, transform 160ms var(--ease-out); -webkit-tap-highlight-color: transparent;
+}
+.pick button[aria-checked="true"] { color: #FFFFFF; }
+.pick button:active { transform: scale(.96); }
+.pick__thumb { position: absolute; top: 3px; bottom: 3px; left: 3px; width: calc(50% - 3px); border-radius: 999px; background: var(--ink); transition: transform 260ms var(--ease-out); }
+.pick[data-bot="black"] .pick__thumb { transform: translateX(100%); }
+.sw { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.sw--white { background: #FFFFFF; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .3); }
+.sw--black { background: #111113; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .45); }
+/* the way out: in the sky between the top row and the ball, never on the ball (its eyes look up at it) */
+.get {
+  position: absolute; left: 50%; top: calc((var(--top) + var(--sky)) / 2); translate: -50% -50%;
+  display: inline-flex; align-items: center; justify-content: center; min-height: clamp(38px, 3.6vw, 48px); padding: 0 clamp(16px, 1.8vw, 24px);
+  border-radius: 999px; background: var(--ink); color: #FFFFFF; font-size: clamp(13px, 1.2vw, 16px); font-weight: 500; letter-spacing: -.005em;
+  text-decoration: none; white-space: nowrap; -webkit-tap-highlight-color: transparent;
+  transition: background-color 200ms ease, color 200ms ease, transform 160ms var(--ease-out);
+}
+.get:active { transform: scale(.97); }
+.sky-dark .get { background: #FFFFFF; color: var(--ink); }
+@media (hover: hover) and (pointer: fine) { .get:hover { background: #3A3A3D; } .sky-dark .get:hover { background: #F2F2F4; } }
+:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+</style>
+</head>
+<body>
+<!-- FACE: landing/assemble.mjs puts the wallpaper's own body here (web/face/index.html) -->
+<div class="ui">
+  <span class="brand"><img src="../assets/brand/logo-mark.png" width="28" height="28" alt="">Grok Bot Wallpaper</span>
+  <div class="pick" role="radiogroup" aria-label="Grok Bot colour" data-bot="white">
+    <button type="button" role="radio" aria-checked="true" data-pick="white"><i class="sw sw--white"></i>White</button>
+    <button type="button" role="radio" aria-checked="false" data-pick="black"><i class="sw sw--black"></i>Black</button>
+    <span class="pick__thumb" aria-hidden="true"></span>
+  </div>
+  <a class="get" href="https://0xcodila.com/grokbot-wallpaper/" target="_blank" rel="noopener noreferrer">Get it free – Mac / Windows</a>
+</div>
+<script type="module">
+// After face.js (also a module, so it has run): its grokBot.setBot changes the ball; the pick is kept like the landing's.
+const pick = document.querySelector('.pick'), ball = document.querySelector('.bot');
+const calm = matchMedia('(prefers-reduced-motion: reduce)');
+let color = new URLSearchParams(location.search).get('bot') || (() => { try { return localStorage.getItem('gbw.bot'); } catch { return null; } })();
+color = color === 'black' ? 'black' : 'white';
+function mark() {
+  pick.dataset.bot = color;
+  pick.querySelectorAll('[data-pick]').forEach((b) => { const on = b.dataset.pick === color; b.setAttribute('aria-checked', String(on)); b.tabIndex = on ? 0 : -1; });
+}
+function show(next) {
+  if (next === color) return;
+  color = next;
+  mark();
+  try { localStorage.setItem('gbw.bot', color); } catch {}
+  const swap = () => window.grokBot?.setBot(color);
+  if (calm.matches || !ball?.animate) return swap();
+  ball.animate([{ filter: 'blur(0px)', opacity: 1 }, { filter: 'blur(8px)', opacity: 0.6 }], { duration: 140, easing: 'ease-out' }).finished.then(() => {
+    swap();
+    ball.animate([{ filter: 'blur(8px)', opacity: 0.6 }, { filter: 'blur(0px)', opacity: 1 }], { duration: 280, easing: 'cubic-bezier(.23, 1, .32, 1)' });
+  });
+}
+mark();
+pick.addEventListener('click', (e) => { const b = e.target.closest('[data-pick]'); if (b) show(b.dataset.pick); });
+pick.addEventListener('keydown', (e) => {                    // a radio group: the arrows move the pick
+  if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+  e.preventDefault();
+  show(color === 'white' ? 'black' : 'white');
+  pick.querySelector(`[data-pick="${color}"]`).focus();
+});
+// Light words over a dark sky: the first colour of the sky's gradient, checked again as the sun moves.
+function tone() {
+  const m = getComputedStyle(document.body).backgroundImage.match(/rgba?\(([^)]+)\)/);
+  if (!m) return;
+  const [r, g, b] = m[1].split(',').map(parseFloat);
+  document.documentElement.classList.toggle('sky-dark', (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255 < 0.5);
+}
+tone();
+setTimeout(tone, 800);
+setInterval(tone, 60e3);
+</script>
+</body>
+</html>

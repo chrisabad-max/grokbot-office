@@ -1,0 +1,23 @@
+// The Grok Bot relay: an ntfy-compatible mailbox on Cloudflare's free Workers plan. Deploy: see README.md.
+{
+  "name": "grokbot-relay",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  // the public address (the prompt builds it from pieces): Cloudflare makes the DNS record and the certificate
+  "routes": [{ "pattern": "relay.0xcodila.com", "custom_domain": true }],
+  "preview_urls": false,
+  "durable_objects": {
+    "bindings": [{ "name": "TOPIC", "class_name": "Topic" }, { "name": "STATS", "class_name": "Stats" }]
+  },
+  // The free plan only has SQLite-backed Durable Objects.
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Topic", "Stats"] }],
+  // /_stats also needs a secret: npx wrangler@4 secret put STATS_KEY (see README.md).
+  // Per-IP limits, counted per Cloudflare location. High on purpose: Grok Bot posts every user's curl from a few shared
+  // IPs, which is exactly what breaks ntfy.sh. They stop floods; the per-topic bucket in src/index.js stops spam.
+  "ratelimits": [
+    { "name": "PUBLISH_LIMIT", "namespace_id": "4101", "simple": { "limit": 300, "period": 60 } },
+    { "name": "READ_LIMIT", "namespace_id": "4102", "simple": { "limit": 120, "period": 60 } }
+  ],
+  "observability": { "enabled": true }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "bot-hq-server",
+  "private": true,
+  "type": "module",
+  "description": "Bot HQ server (zero dependencies, Node 24)"
+}

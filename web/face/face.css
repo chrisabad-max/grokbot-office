@@ -1,0 +1,189 @@
+/* Grok Bot Wallpaper: a big glossy Grok Bot rising from the bottom of the screen, its eyes on the cursor, the user's
+   bots as small live cards in one movable column (a desktop is full of icons and windows). */
+:root {
+  --ink: #F5F5F7; --muted: #A1A1A6; --hair: rgba(255, 255, 255, .08);
+  --working: #34C759; --waiting: #FFB020; --error: #FF453A; --idle: #8E8E93; --done: #0A84FF; --stuck: #FF9F0A;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+body { font-family: -apple-system, "SF Pro Text", "Inter", system-ui, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; user-select: none; cursor: default; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* ---------- the sky: Grok Bot rises like the sun, and the sky follows the real time of day ----------
+   Four moods taken from the approved picture (morning, day, evening, night), blended minute by minute by face.js
+   through these variables, so the light changes as slowly as the real one. Minimal on purpose: a few muted colours,
+   a little morning mist, a soft glow behind the ball, a thin rim of light on its top edge, stars at night.
+   The values below are the evening, used until the script runs. */
+:root {
+  --bw: min(68.45vw, 121.7vh);                        /* the bot's width; the ball's radius is 0.4993 of it */
+  --sky-0: #102152; --sky-1: #303563; --sky-2: #9C696B; --sky-3: #F99958; --sky-4: #D27B5F;
+  --glow: #FFB070; --glow-a: .55; --rim: #FFD9A0; --rim-a: .95; --mul: #ADA9C2; --scr: #000000;
+  --edge-a: .15; --mist: 0; --stars: 0; --star1: .9;
+}
+html { background: #0B1430; }
+body { background: linear-gradient(180deg, var(--sky-0) 0%, var(--sky-1) 25%, var(--sky-2) 55%, var(--sky-3) 80%, var(--sky-4) 100%); }
+.mist { position: fixed; z-index: 0; left: -10%; right: -10%; bottom: 0; height: 42vh; pointer-events: none; opacity: var(--mist);
+  background: radial-gradient(60% 34% at 22% 52%, rgba(255, 255, 255, .7), transparent 70%), radial-gradient(55% 30% at 80% 50%, rgba(255, 255, 255, .6), transparent 70%),
+    linear-gradient(180deg, transparent, rgba(255, 255, 255, .45) 52%, transparent); filter: blur(10px); }
+.stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: var(--stars); }
+.stars i, .star1 { position: absolute; border-radius: 50%; background: #fff; }
+.stars i.tw { animation: twinkle 5s ease-in-out infinite alternate; }
+@keyframes twinkle { to { opacity: .25; } }
+.star1 { position: fixed; z-index: 0; left: 6.4%; top: 16.8%; width: 3px; height: 3px; opacity: var(--star1); box-shadow: 0 0 6px 1px rgba(255, 244, 220, .55); pointer-events: none; }
+.halo {
+  position: fixed; z-index: 0; left: 50%; bottom: calc(var(--bw) * -0.0523); width: calc(var(--bw) * 1.598); aspect-ratio: 1;
+  transform: translate(-50%, 50%); pointer-events: none; opacity: var(--glow-a);
+  background: radial-gradient(closest-side, var(--glow) 62.5%, color-mix(in srgb, var(--glow) 60%, transparent) 64.2%, color-mix(in srgb, var(--glow) 32%, transparent) 67.2%, color-mix(in srgb, var(--glow) 16%, transparent) 72%, color-mix(in srgb, var(--glow) 7%, transparent) 79.5%, color-mix(in srgb, var(--glow) 2%, transparent) 90%, transparent 100%);
+  animation: aura 7s ease-in-out infinite;
+}
+@keyframes aura { 50% { scale: 1.012; } }
+.grain { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: url(../assets/face/grain.png); opacity: .035; }
+
+/* ---------- the live cards (the user's iPhone Live Activity reference, built to stageshow's dynamic-island rules) ----------
+   One small movable column, since a desktop is full of icons and windows: the team, a card for each bot that needs
+   the user, then everyone as 3D avatars. Colour means status only; light drifts slowly inside each card, lit from
+   above; the column leans a few degrees toward the cursor. */
+:root { --u: clamp(1px, .0525vw, 1.45px); --round: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, sans-serif; --spring: cubic-bezier(.2, 1.2, .3, 1); }
+.stack {
+  --tx: 0deg; --ty: 0deg;
+  position: fixed; z-index: 3; top: calc(20 * var(--u)); right: calc(20 * var(--u));
+  width: calc(300 * var(--u)); display: flex; flex-direction: column; gap: calc(8 * var(--u));
+  transform: perspective(1100px) rotateX(var(--tx)) rotateY(var(--ty));
+  cursor: grab; touch-action: none; transition: scale .3s var(--spring);
+}
+.stack.is-dragging { cursor: grabbing; scale: 1.025; }
+.stack.is-settling { transition: left .42s cubic-bezier(.2, .9, .25, 1), top .42s cubic-bezier(.2, .9, .25, 1), scale .3s ease; }
+.needs { display: contents; }
+
+.card {
+  --base: #232327; --glow: #6E6E78; --hi: #F2F2F7; --mid: #B4B4BA;
+  position: relative; overflow: hidden; isolation: isolate;
+  border-radius: calc(24 * var(--u)); padding: calc(16 * var(--u)) calc(18 * var(--u));
+  background: linear-gradient(180deg, rgba(255, 255, 255, .07), transparent 45%, rgba(0, 0, 0, .14)), var(--base);
+  color: var(--hi);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 0 0 1px rgba(255, 255, 255, .05), 0 calc(12 * var(--u)) calc(28 * var(--u)) rgba(16, 16, 24, .22), 0 1px 2px rgba(0, 0, 0, .16);
+  transition: background-color .8s ease;
+  animation: card-in .7s var(--spring) both;
+}
+.card::before, .card::after { content: ""; position: absolute; z-index: -1; border-radius: 50%; pointer-events: none; filter: blur(calc(26 * var(--u))); }
+.card::before { width: 80%; height: 140%; left: 32%; top: -62%; background: var(--glow); opacity: .5; animation: flow 9s ease-in-out infinite alternate; }
+.card::after { width: 55%; height: 110%; left: -22%; top: 45%; background: var(--glow); opacity: .22; animation: flow2 11s ease-in-out infinite alternate; }
+.card__grab { position: absolute; left: 50%; bottom: calc(7 * var(--u)); width: calc(36 * var(--u)); height: calc(4 * var(--u)); margin-left: calc(-18 * var(--u)); border-radius: 4px; background: rgba(255, 255, 255, .26); }
+@keyframes card-in { from { opacity: 0; transform: translateY(calc(10 * var(--u))) scale(.96); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes flow { from { transform: translate(-14%, 0) scale(1); } to { transform: translate(10%, 10%) scale(1.15); } }
+@keyframes flow2 { from { transform: translate(0, 0); } to { transform: translate(34%, -18%) scale(1.2); } }
+
+.is-working { --base: #2F4A17; --glow: #9BDC3C; --hi: #E7FF8C; --mid: #C2E784; }
+.is-waiting { --base: #6E3F06; --glow: #FFB23A; --hi: #FFE2A6; --mid: #FFD28E; }
+.is-error   { --base: #8C1620; --glow: #FF4A5E; --hi: #FFE1E4; --mid: #FFB8BF; }
+.is-idle    { --base: #232327; --glow: #6E6E78; --hi: #F2F2F7; --mid: #B4B4BA; }
+
+/* the team: one big number, the two counts that matter beside it, the week's limit as a glowing slider */
+.team__top { display: flex; align-items: flex-start; justify-content: space-between; gap: calc(14 * var(--u)); }
+.team__big { display: flex; align-items: baseline; gap: calc(6 * var(--u)); }
+.team__big b { font: 900 calc(34 * var(--u)) / 1 var(--round); letter-spacing: -.02em; }
+.team__big span { font: 800 calc(17 * var(--u)) / 1 var(--round); }
+.team__list { display: grid; gap: calc(2 * var(--u)); padding-top: calc(3 * var(--u)); font: 800 calc(12.5 * var(--u)) / 1.3 var(--round); }
+.team__list span { display: flex; justify-content: space-between; gap: calc(12 * var(--u)); transition: opacity .4s ease; }
+.team__list em { font-style: normal; color: var(--mid); }
+.team__list b { font-weight: 900; }
+.team__list .is-zero { opacity: .5; }
+.meter { display: flex; align-items: center; gap: calc(10 * var(--u)); margin-top: calc(14 * var(--u)); }
+.slider { position: relative; flex: 1; height: calc(18 * var(--u)); border-radius: 999px; background: rgba(255, 255, 255, .13); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .28), 0 1px 0 rgba(255, 255, 255, .08); }
+.slider__fill {
+  position: absolute; left: calc(3 * var(--u)); top: calc(3 * var(--u)); bottom: calc(3 * var(--u));
+  width: max(calc(12 * var(--u)), calc(var(--p, 0) * (100% - 6 * var(--u)))); border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, .55), #fff);
+  box-shadow: 0 0 calc(8 * var(--u)) calc(1 * var(--u)) color-mix(in srgb, var(--glow) 75%, #fff), 0 0 calc(22 * var(--u)) calc(3 * var(--u)) color-mix(in srgb, var(--glow) 45%, transparent);
+  transition: width 1.4s var(--spring);
+}
+.meter__label { font: 800 calc(12.5 * var(--u)) / 1 var(--round); color: var(--mid); white-space: nowrap; }
+.meter__label b { color: var(--hi); font-weight: 900; }
+
+/* a bot that needs the user: its 3D avatar, its name, what it wants; it breathes in its colour until answered */
+.need { display: flex; align-items: center; gap: calc(12 * var(--u)); max-height: calc(90 * var(--u)); padding: calc(12 * var(--u)) calc(18 * var(--u)) calc(12 * var(--u)) calc(12 * var(--u)); border-radius: calc(22 * var(--u)); }
+.need > img, .need > svg { width: calc(42 * var(--u)); height: calc(42 * var(--u)); flex: none; filter: drop-shadow(0 calc(3 * var(--u)) calc(5 * var(--u)) rgba(0, 0, 0, .4)); }
+.need__words { min-width: 0; }
+.need__title { font: 900 calc(17 * var(--u)) / 1.15 var(--round); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.need__sub { font: 800 calc(12.5 * var(--u)) / 1.3 var(--round); color: var(--mid); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: calc(2 * var(--u)); }
+.need { animation: card-in .7s var(--spring) both, breathe 2.8s ease-in-out .7s infinite; }
+.need.is-leaving { animation: card-out .38s cubic-bezier(.4, 0, .2, 1) both; pointer-events: none; }
+@keyframes breathe { 50% { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), inset 0 0 0 1px rgba(255, 255, 255, .05), 0 calc(12 * var(--u)) calc(28 * var(--u)) rgba(16, 16, 24, .22), 0 0 calc(24 * var(--u)) calc(2 * var(--u)) color-mix(in srgb, var(--glow) 50%, transparent); } }
+@keyframes card-out { to { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; margin-top: calc(-8 * var(--u)); transform: scale(.94); filter: blur(6px); } }
+.bokeh { position: absolute; z-index: -1; top: 0; right: 0; bottom: 0; width: 42%; pointer-events: none; }
+.bokeh i { position: absolute; border-radius: 50%; background: var(--hi); filter: blur(1px); animation: rise 6s ease-in-out infinite alternate; }
+.bokeh i:nth-child(1) { width: calc(5 * var(--u)); height: calc(5 * var(--u)); left: 18%; top: 28%; animation-delay: -1s; }
+.bokeh i:nth-child(2) { width: calc(3 * var(--u)); height: calc(3 * var(--u)); left: 42%; top: 62%; animation-delay: -3s; }
+.bokeh i:nth-child(3) { width: calc(7 * var(--u)); height: calc(7 * var(--u)); left: 64%; top: 22%; animation-delay: -2s; filter: blur(2px); }
+.bokeh i:nth-child(4) { width: calc(4 * var(--u)); height: calc(4 * var(--u)); left: 80%; top: 58%; animation-delay: -4.5s; }
+.bokeh i:nth-child(5) { width: calc(3 * var(--u)); height: calc(3 * var(--u)); left: 55%; top: 44%; animation-delay: -5s; }
+@keyframes rise { from { transform: translate(0, calc(6 * var(--u))); opacity: .15; } to { transform: translate(calc(-8 * var(--u)), calc(-6 * var(--u))); opacity: .6; } }
+
+/* everyone as 3D avatars, in a stable order; a small lit dot says the status, resting bots are dimmed */
+.crew { padding-bottom: calc(22 * var(--u)); }
+.crew__head { display: flex; justify-content: space-between; font: 800 calc(12.5 * var(--u)) / 1.3 var(--round); color: var(--mid); margin-bottom: calc(10 * var(--u)); }
+.crew__head b { color: var(--hi); font-weight: 900; }
+.crew__grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: calc(6 * var(--u)); }
+.av { all: unset; position: relative; aspect-ratio: 1; cursor: inherit; }
+.av img, .av svg { position: absolute; inset: 0; width: 100%; height: 100%; filter: drop-shadow(0 calc(2 * var(--u)) calc(3 * var(--u)) rgba(0, 0, 0, .5)); transition: transform .35s var(--spring), opacity .4s ease; }
+.av:hover img, .av:hover svg { transform: translateY(calc(-3 * var(--u))) scale(1.12); }
+.av[data-s="idle"] img, .av[data-s="idle"] svg { opacity: .45; }
+.av[data-s="idle"] .orb { display: none; }
+.orb { position: absolute; right: calc(-1 * var(--u)); bottom: calc(-1 * var(--u)); width: calc(8 * var(--u)); height: calc(8 * var(--u)); border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 35%, #fff), var(--c) 55%, color-mix(in srgb, var(--c) 70%, #000));
+  outline: calc(1.5 * var(--u)) solid var(--base); box-shadow: 0 0 calc(5 * var(--u)) color-mix(in srgb, var(--c) 50%, transparent); }
+svg.is-dark { filter: drop-shadow(0 0 .6px rgba(255, 255, 255, .6)); }
+
+.tip {
+  position: fixed; z-index: 5; width: max-content; max-width: calc(240 * var(--u)); pointer-events: none;
+  padding: calc(10 * var(--u)) calc(12 * var(--u)); border-radius: calc(14 * var(--u));
+  background: rgba(30, 30, 34, .92); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 calc(10 * var(--u)) calc(24 * var(--u)) rgba(0, 0, 0, .45);
+  font: 800 calc(12.5 * var(--u)) / 1.35 var(--round); color: var(--ink);
+}
+.tip b { display: block; font-weight: 900; }
+.tip span { display: block; color: var(--muted); }
+.tip p { color: var(--muted); margin-top: calc(3 * var(--u)); font-weight: 700; }
+
+/* ---------- the bot ---------- */
+.bot { position: fixed; z-index: 1; left: 50%; bottom: 0; width: var(--bw); transform: translateX(-50%); }
+/* clipped to the ball: an eye turned past the edge slides out of sight instead of hanging over the background */
+.bot { clip-path: ellipse(49.969% 111.595% at 50% 111.677%); transform-origin: 50% 100%; animation: breathe-bot 7s ease-in-out infinite; }
+@keyframes breathe-bot { 50% { scale: 1.005; } }
+.bot img { display: block; width: 100%; height: auto; }
+/* each eye = the original eye as two blend layers straight on the eyeless sphere (blending needs them to be the
+   sphere's siblings, not wrapped): multiply for the dark eye, screen for its light rim */
+.bot img.eye { position: absolute; display: block; height: auto; }
+/* the scene's light on the ball: a tint under the eyes (multiply darkens and colours it in the evening and at night,
+   screen lifts it in the morning and by day, the eyes stay deep), a thin rim of light along its top edge, and on light
+   skies a soft light edge all round (the painted ball has a dark limb from its black studio) */
+.bot .tint { position: absolute; inset: 0; pointer-events: none; }
+.tint--mul { background: var(--mul); mix-blend-mode: multiply; }
+.tint--scr { background: var(--scr); mix-blend-mode: screen; }
+/* the black bot (html[data-bot=black]): a rendered glossy black ball, its painted eyes made light (screened on), and a
+   light edge kept all day so the dark ball never melts into a dark sky */
+.bot .eye-w { position: absolute; display: none; pointer-events: none; mix-blend-mode: screen; }
+[data-bot="black"] .bot img.eye { display: none; }
+[data-bot="black"] .bot .eye-w { display: block; }
+[data-bot="black"] .bot .edge { opacity: 0; }                /* the render has its own thin rim of back light */
+[data-bot="black"] .bot .rim { opacity: calc(var(--rim-a) * .55); }
+[data-bot="black"] .tint--scr { opacity: .22; }            /* by day a black ball only hints at the sky, it stays black */
+.bot .edge { position: absolute; left: .067%; top: .163%; width: 99.866%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, transparent 94.5%, var(--rim) 99.6%, transparent 100%); mix-blend-mode: screen; opacity: var(--edge-a); }
+.bot .rim { position: absolute; left: .067%; top: .163%; width: 99.866%; aspect-ratio: 1; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, transparent 97.4%, var(--rim) 99.7%, transparent 100%);
+  -webkit-mask: linear-gradient(#000, transparent 44%); mask: linear-gradient(#000, transparent 44%);
+  mix-blend-mode: screen; opacity: var(--rim-a); }
+.eye--mul { mix-blend-mode: multiply; }
+.eye--scr { mix-blend-mode: screen; }
+
+@media (prefers-reduced-motion: reduce) {
+  .card, .card::before, .card::after, .bokeh i, .halo, .bot, .stars i { animation: none !important; }
+  .stack { transition: none; transform: none; }
+}
+
+/* weak computers (face.js sets .lite): the decorative loops stop, everything stays on screen */
+.lite .bot, .lite .halo, .lite .card, .lite .card::before, .lite .card::after, .lite .bokeh i, .lite .stars i { animation: none !important; }
+.lite .stack { transform: none; }
+
+.meter[hidden], .stack[hidden] { display: none; }

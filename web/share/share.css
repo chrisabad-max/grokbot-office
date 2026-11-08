@@ -1,0 +1,67 @@
+/*
+ * Share card (share.js): a graphite .bhq-surface under the top bar's share button with the preview and the actions.
+ * The preview is the real image, a bright 16:9 photo on the dark card, like a system share sheet. Every class is
+ * prefixed "bhq-shr-"; the card lives on <body>, outside ui.css's scoped resets, so it resets its own buttons.
+ */
+
+.bhq-shr {
+  position: fixed; z-index: 45; width: 400px; padding: 14px; border-radius: 24px;
+  display: flex; flex-direction: column; gap: 12px;
+  font: 800 12.5px/1.3 var(--bhq-round); -webkit-font-smoothing: antialiased;
+  outline: none;
+}
+.bhq-shr[hidden] { display: none; }
+.bhq-shr *, .bhq-shr *::before, .bhq-shr *::after { box-sizing: border-box; }
+.bhq-shr--phone { left: 12px; right: 12px; width: auto; }
+
+.bhq-shr-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-left: 4px; }
+.bhq-shr-title { font: 900 15px/1 var(--bhq-round); color: var(--hi); letter-spacing: -.01em; }
+
+:where(.bhq-shr) button {
+  appearance: none; border: 0; margin: 0; font: inherit; color: inherit; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+:where(.bhq-shr) button:focus-visible { outline: 2px solid #7DB7FF; outline-offset: 2px; }
+
+.bhq-shr-x {
+  flex: none; width: 28px; height: 28px; border-radius: 14px; display: grid; place-items: center;
+  background: rgba(255, 255, 255, .08); color: var(--mid); transition: background-color .15s, color .15s;
+}
+.bhq-shr-x:hover { background: rgba(255, 255, 255, .14); color: var(--hi); }
+
+.bhq-shr-img {
+  position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden;
+  background: #EDEDF0; box-shadow: 0 0 0 1px rgba(255, 255, 255, .08);
+}
+.bhq-shr-img img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transition: opacity .4s var(--bhq-ease);
+  -webkit-user-select: none; user-select: none;
+}
+.bhq-shr-img.is-ready img { opacity: 1; }
+.bhq-shr-wait {
+  position: absolute; inset: 0; display: grid; place-items: center; padding: 0 24px; text-align: center;
+  color: #8E8E93; font: 800 12.5px/1.35 var(--bhq-round);
+}
+.bhq-shr-wait[hidden] { display: none; }
+
+.bhq-shr-acts { display: flex; gap: 8px; }
+.bhq-shr-btn {
+  flex: 1 1 0; min-width: 0; height: 40px; padding: 0 12px; border-radius: 20px;
+  display: grid; place-items: center; white-space: nowrap;
+  background: rgba(255, 255, 255, .1); color: var(--hi); font: 800 13px/1 var(--bhq-round);
+  transition: background-color .15s, opacity .2s, transform .3s var(--bhq-spring);
+}
+.bhq-shr-btn:hover { background: rgba(255, 255, 255, .16); }
+.bhq-shr-btn:active { transform: scale(.96); }
+.bhq-shr-btn--main { background: #F2F2F7; color: #1C1C1E; }
+.bhq-shr-btn--main:hover { background: #FFFFFF; }
+.bhq-shr .bhq-shr-btn:disabled { opacity: .4; cursor: default; transform: none; }
+.bhq-shr--phone .bhq-shr-btn { height: 44px; border-radius: 22px; font-size: 14px; }
+
+.bhq-shr-note { margin: 0; padding: 0 4px; color: var(--mid); font: 700 12px/1.35 var(--bhq-round); }
+.bhq-shr-note[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bhq-shr-img img, .bhq-shr-btn { transition: none; }
+}

@@ -1,0 +1,41 @@
+# Builds the Mac app (mac/) on a macOS runner: a universal, ad-hoc signed "Grok Bot Wallpaper.app" inside
+# GrokBotWallpaper.dmg. Every build keeps the .dmg as a workflow artifact (Actions → run → Artifacts).
+# A tag like mac-v1.0 also publishes it as a release, so the site can link to
+# https://github.com/Bodila51/grokbot-wallpaper/releases/latest/download/GrokBotWallpaper.dmg
+name: Mac app
+on:
+  push:
+    branches: [main]
+    paths: ['mac/**', '.github/workflows/mac.yml']
+    tags: ['mac-v*']
+  pull_request:
+    paths: ['mac/**', '.github/workflows/mac.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: mac-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the app and the .dmg
+        run: |
+          VERSION="0.1.${{ github.run_number }}"
+          if [[ "$GITHUB_REF" == refs/tags/mac-v* ]]; then VERSION="${GITHUB_REF#refs/tags/mac-v}"; fi
+          VERSION="$VERSION" BUILD_NUMBER="${{ github.run_number }}" bash mac/build.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GrokBotWallpaper-dmg
+          path: mac/dist/GrokBotWallpaper.dmg
+          if-no-files-found: error
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/mac-v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" mac/dist/GrokBotWallpaper.dmg \
+            --title "Grok Bot Wallpaper for Mac ${GITHUB_REF_NAME#mac-v}" \
+            --notes "Live Grok Bot wallpaper for macOS 13+. Install and first launch: https://github.com/${{ github.repository }}/blob/main/mac/README.md"

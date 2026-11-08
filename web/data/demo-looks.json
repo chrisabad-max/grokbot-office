@@ -1,0 +1,17 @@
+{
+  "grok-bot": { "shape": "sphere", "color": "#FC6A14", "accessory": "stem" },
+  "jevopus": { "shape": "sphere", "color": "#F93FA6", "accessory": "none" },
+  "x-writer": { "shape": "rounded_cube", "color": "#2D84F5", "accessory": "none" },
+  "banner-visuals": { "shape": "triangle", "color": "#22BE6C", "accessory": "none" },
+  "analytics-analyst": { "shape": "clover", "color": "#F03A96", "accessory": "none" },
+  "competitor-watch": { "shape": "triangle", "color": "#A97447", "accessory": "none" },
+  "qt-scout": { "shape": "pill", "color": "#F59A1B", "accessory": "none" },
+  "ideas-sparring": { "shape": "star4", "color": "#FB3446", "accessory": "none" },
+  "bookmarks-brain": { "shape": "pentagon", "color": "#19B9A5", "accessory": "none" },
+  "codila-x-researcher": { "shape": "star6", "color": "#111113", "accessory": "none" },
+  "trendy-x": { "shape": "trio", "color": "#F8A41E", "accessory": "none" },
+  "substack": { "shape": "triangle", "color": "#FA6A22", "accessory": "none" },
+  "x-ads-manager": { "shape": "hexagon", "color": "#A87244", "accessory": "none" },
+  "warren-buffett": { "shape": "sphere", "color": "#F6DCC2", "accessory": "glasses" },
+  "finance-team": { "shape": "rounded_square", "color": "#2A9158", "accessory": "none" }
+}

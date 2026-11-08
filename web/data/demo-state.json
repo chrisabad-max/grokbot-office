@@ -1,0 +1,1770 @@
+{
+ "version": 412,
+ "now": "2026-10-31T17:00:00.000Z",
+ "demo": true,
+ "summary": {
+  "working": 6,
+  "idle": 4,
+  "waiting_user": 2,
+  "error": 1,
+  "stuck": 1,
+  "done": 1,
+  "total": 15
+ },
+ "usage": {
+  "period": "week",
+  "total_used_pct": 37,
+  "resets_at": "2026-11-03T00:00:00+02:00",
+  "updated_at": "2026-10-31T16:00:00Z"
+ },
+ "floors": [
+  {
+   "id": "coordination",
+   "name": "Coordination",
+   "order": 1,
+   "bots": [
+    "grok-bot",
+    "jevopus"
+   ],
+   "counts": {
+    "working": 1,
+    "idle": 1,
+    "waiting_user": 0,
+    "error": 0,
+    "stuck": 0,
+    "done": 0
+   },
+   "free_desks": 18
+  },
+  {
+   "id": "x-content",
+   "name": "X content",
+   "order": 2,
+   "bots": [
+    "x-writer",
+    "banner-visuals",
+    "analytics-analyst",
+    "competitor-watch",
+    "qt-scout",
+    "ideas-sparring",
+    "bookmarks-brain",
+    "codila-x-researcher",
+    "trendy-x"
+   ],
+   "counts": {
+    "working": 4,
+    "idle": 1,
+    "waiting_user": 1,
+    "error": 1,
+    "stuck": 1,
+    "done": 1
+   },
+   "free_desks": 11
+  },
+  {
+   "id": "publishing",
+   "name": "Publishing",
+   "order": 3,
+   "bots": [
+    "substack",
+    "x-ads-manager"
+   ],
+   "counts": {
+    "working": 0,
+    "idle": 1,
+    "waiting_user": 1,
+    "error": 0,
+    "stuck": 0,
+    "done": 0
+   },
+   "free_desks": 18
+  },
+  {
+   "id": "finance",
+   "name": "Finance",
+   "order": 4,
+   "bots": [
+    "warren-buffett",
+    "finance-team"
+   ],
+   "counts": {
+    "working": 1,
+    "idle": 1,
+    "waiting_user": 0,
+    "error": 0,
+    "stuck": 0,
+    "done": 0
+   },
+   "free_desks": 18
+  }
+ ],
+ "bots": {
+  "grok-bot": {
+   "id": "grok-bot",
+   "name": "Grok Bot",
+   "floor": "coordination",
+   "desk": 1,
+   "group": "Coordination",
+   "status": "working",
+   "effective_status": "working",
+   "step": "(planning)",
+   "task": "(planning)",
+   "since": "2026-10-31T16:39:00Z",
+   "last_event": "2026-10-31T16:59:00Z",
+   "usage_pct": 9.5,
+   "usage_share": 0.241,
+   "chat_url": null,
+   "avatar": "grok-bot",
+   "color": "#FF6A13",
+   "today": {
+    "working_min": 20,
+    "events": 6,
+    "tasks_done": 0,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     0,
+     1,
+     1,
+     0,
+     0,
+     1,
+     1,
+     0,
+     0,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:59:00Z",
+     "status": "working",
+     "step": "(planning)"
+    },
+    {
+     "t": "2026-10-31T16:53:00Z",
+     "status": "working",
+     "step": "(planning)"
+    },
+    {
+     "t": "2026-10-31T16:47:00Z",
+     "status": "working",
+     "step": "(planning)"
+    },
+    {
+     "t": "2026-10-31T16:41:00Z",
+     "status": "working",
+     "step": "(planning)"
+    },
+    {
+     "t": "2026-10-31T16:35:00Z",
+     "status": "working",
+     "step": "(planning)"
+    }
+   ]
+  },
+  "jevopus": {
+   "id": "jevopus",
+   "name": "Jevopus",
+   "floor": "coordination",
+   "desk": 2,
+   "group": "Coordination",
+   "status": "idle",
+   "effective_status": "idle",
+   "step": "(writing)",
+   "task": null,
+   "since": "2026-10-31T16:36:00Z",
+   "last_event": "2026-10-31T16:56:00Z",
+   "usage_pct": 3.2,
+   "usage_share": 0.081,
+   "chat_url": null,
+   "avatar": "jevopus",
+   "color": "#FF3FA4",
+   "today": {
+    "working_min": 27,
+    "events": 8,
+    "tasks_done": 1,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     0,
+     1,
+     1,
+     0,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:56:00Z",
+     "status": "idle",
+     "step": "(writing)"
+    },
+    {
+     "t": "2026-10-31T16:50:00Z",
+     "status": "working",
+     "step": "(writing)"
+    },
+    {
+     "t": "2026-10-31T16:44:00Z",
+     "status": "working",
+     "step": "(writing)"
+    },
+    {
+     "t": "2026-10-31T16:38:00Z",
+     "status": "working",
+     "step": "(writing)"
+    },
+    {
+     "t": "2026-10-31T16:32:00Z",
+     "status": "working",
+     "step": "(writing)"
+    }
+   ]
+  },
+  "x-writer": {
+   "id": "x-writer",
+   "name": "X Writer",
+   "floor": "x-content",
+   "desk": 1,
+   "group": "X content",
+   "status": "working",
+   "effective_status": "working",
+   "step": "(writing)",
+   "task": "(writing)",
+   "since": "2026-10-31T16:33:00Z",
+   "last_event": "2026-10-31T16:53:00Z",
+   "usage_pct": 4.1,
+   "usage_share": 0.104,
+   "chat_url": null,
+   "avatar": "x-writer",
+   "color": "#2F6BFF",
+   "today": {
+    "working_min": 34,
+    "events": 10,
+    "tasks_done": 2,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:53:00Z",
+     "status": "working",
+     "step": "(writing)"
+    },
+    {
+     "t": "2026-10-31T16:47:00Z",
+     "status": "working",
+     "step": "(writing)"
+    },
+    {
+     "t": "2026-10-31T16:41:00Z",
+     "status": "working",
+     "step": "(writing)"
+    },
+    {
+     "t": "2026-10-31T16:35:00Z",
+     "status": "working",
+     "step": "(writing)"
+    },
+    {
+     "t": "2026-10-31T16:29:00Z",
+     "status": "working",
+     "step": "(writing)"
+    }
+   ]
+  },
+  "banner-visuals": {
+   "id": "banner-visuals",
+   "name": "Banner & Visuals",
+   "floor": "x-content",
+   "desk": 2,
+   "group": "X content",
+   "status": "working",
+   "effective_status": "working",
+   "step": "(design)",
+   "task": "(design)",
+   "since": "2026-10-31T16:30:00Z",
+   "last_event": "2026-10-31T16:50:00Z",
+   "usage_pct": 3,
+   "usage_share": 0.076,
+   "chat_url": null,
+   "avatar": "banner-visuals",
+   "color": "#1DB954",
+   "today": {
+    "working_min": 41,
+    "events": 12,
+    "tasks_done": 3,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     1,
+     2,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:50:00Z",
+     "status": "working",
+     "step": "(design)"
+    },
+    {
+     "t": "2026-10-31T16:44:00Z",
+     "status": "working",
+     "step": "(design)"
+    },
+    {
+     "t": "2026-10-31T16:38:00Z",
+     "status": "working",
+     "step": "(design)"
+    },
+    {
+     "t": "2026-10-31T16:32:00Z",
+     "status": "working",
+     "step": "(design)"
+    },
+    {
+     "t": "2026-10-31T16:26:00Z",
+     "status": "working",
+     "step": "(design)"
+    }
+   ]
+  },
+  "analytics-analyst": {
+   "id": "analytics-analyst",
+   "name": "Analytics Analyst",
+   "floor": "x-content",
+   "desk": 3,
+   "group": "X content",
+   "status": "error",
+   "effective_status": "error",
+   "step": "(analytics)",
+   "task": "(analytics)",
+   "since": "2026-10-31T16:27:00Z",
+   "last_event": "2026-10-31T16:47:00Z",
+   "usage_pct": 2.4,
+   "usage_share": 0.061,
+   "chat_url": null,
+   "avatar": "analytics-analyst",
+   "color": "#FF4FA0",
+   "today": {
+    "working_min": 48,
+    "events": 14,
+    "tasks_done": 4,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     2,
+     1,
+     1,
+     2,
+     1,
+     1,
+     1,
+     2,
+     1,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:47:00Z",
+     "status": "error",
+     "step": "(analytics)"
+    },
+    {
+     "t": "2026-10-31T16:41:00Z",
+     "status": "working",
+     "step": "(analytics)"
+    },
+    {
+     "t": "2026-10-31T16:35:00Z",
+     "status": "working",
+     "step": "(analytics)"
+    },
+    {
+     "t": "2026-10-31T16:29:00Z",
+     "status": "working",
+     "step": "(analytics)"
+    },
+    {
+     "t": "2026-10-31T16:23:00Z",
+     "status": "working",
+     "step": "(analytics)"
+    }
+   ]
+  },
+  "competitor-watch": {
+   "id": "competitor-watch",
+   "name": "Competitor Watch",
+   "floor": "x-content",
+   "desk": 4,
+   "group": "X content",
+   "status": "done",
+   "effective_status": "done",
+   "step": "(research)",
+   "task": "(research)",
+   "since": "2026-10-31T16:24:00Z",
+   "last_event": "2026-10-31T16:44:00Z",
+   "usage_pct": 2.1,
+   "usage_share": 0.053,
+   "chat_url": null,
+   "avatar": "competitor-watch",
+   "color": "#9C6A3C",
+   "today": {
+    "working_min": 55,
+    "events": 16,
+    "tasks_done": 0,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2,
+     1,
+     1,
+     2,
+     2,
+     1,
+     1,
+     2,
+     1,
+     1,
+     2,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:44:00Z",
+     "status": "done",
+     "step": "(research)"
+    },
+    {
+     "t": "2026-10-31T16:38:00Z",
+     "status": "working",
+     "step": "(research)"
+    },
+    {
+     "t": "2026-10-31T16:32:00Z",
+     "status": "working",
+     "step": "(research)"
+    },
+    {
+     "t": "2026-10-31T16:26:00Z",
+     "status": "working",
+     "step": "(research)"
+    },
+    {
+     "t": "2026-10-31T16:20:00Z",
+     "status": "working",
+     "step": "(research)"
+    }
+   ]
+  },
+  "qt-scout": {
+   "id": "qt-scout",
+   "name": "QT Scout",
+   "floor": "x-content",
+   "desk": 5,
+   "group": "X content",
+   "status": "working",
+   "effective_status": "stuck",
+   "step": "(research)",
+   "task": "(research)",
+   "since": "2026-10-31T15:53:00Z",
+   "last_event": "2026-10-31T16:13:00Z",
+   "usage_pct": 1.9,
+   "usage_share": 0.048,
+   "chat_url": null,
+   "avatar": "qt-scout",
+   "color": "#FF9F1C",
+   "today": {
+    "working_min": 62,
+    "events": 18,
+    "tasks_done": 1,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     2,
+     2,
+     1,
+     2,
+     2,
+     2,
+     1,
+     2,
+     2,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:13:00Z",
+     "status": "working",
+     "step": "(research)"
+    },
+    {
+     "t": "2026-10-31T16:07:00Z",
+     "status": "working",
+     "step": "(research)"
+    },
+    {
+     "t": "2026-10-31T16:01:00Z",
+     "status": "working",
+     "step": "(research)"
+    },
+    {
+     "t": "2026-10-31T15:55:00Z",
+     "status": "working",
+     "step": "(research)"
+    },
+    {
+     "t": "2026-10-31T15:49:00Z",
+     "status": "working",
+     "step": "(research)"
+    }
+   ]
+  },
+  "ideas-sparring": {
+   "id": "ideas-sparring",
+   "name": "Ideas Sparring",
+   "floor": "x-content",
+   "desk": 6,
+   "group": "X content",
+   "status": "idle",
+   "effective_status": "idle",
+   "step": "(brainstorming)",
+   "task": null,
+   "since": "2026-10-31T16:18:00Z",
+   "last_event": "2026-10-31T16:38:00Z",
+   "usage_pct": 1.2,
+   "usage_share": 0.03,
+   "chat_url": null,
+   "avatar": "ideas-sparring",
+   "color": "#F0263A",
+   "today": {
+    "working_min": 69,
+    "events": 20,
+    "tasks_done": 2,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2,
+     2,
+     2,
+     1,
+     2,
+     2,
+     2,
+     1,
+     2,
+     2,
+     2,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:38:00Z",
+     "status": "idle",
+     "step": "(brainstorming)"
+    },
+    {
+     "t": "2026-10-31T16:32:00Z",
+     "status": "working",
+     "step": "(brainstorming)"
+    },
+    {
+     "t": "2026-10-31T16:26:00Z",
+     "status": "working",
+     "step": "(brainstorming)"
+    },
+    {
+     "t": "2026-10-31T16:20:00Z",
+     "status": "working",
+     "step": "(brainstorming)"
+    },
+    {
+     "t": "2026-10-31T16:14:00Z",
+     "status": "working",
+     "step": "(brainstorming)"
+    }
+   ]
+  },
+  "bookmarks-brain": {
+   "id": "bookmarks-brain",
+   "name": "Bookmarks Brain",
+   "floor": "x-content",
+   "desk": 7,
+   "group": "X content",
+   "status": "working",
+   "effective_status": "working",
+   "step": "(sorting)",
+   "task": "(sorting)",
+   "since": "2026-10-31T16:15:00Z",
+   "last_event": "2026-10-31T16:35:00Z",
+   "usage_pct": 1.6,
+   "usage_share": 0.041,
+   "chat_url": null,
+   "avatar": "bookmarks-brain",
+   "color": "#14B8A6",
+   "today": {
+    "working_min": 76,
+    "events": 22,
+    "tasks_done": 3,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     2,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:35:00Z",
+     "status": "working",
+     "step": "(sorting)"
+    },
+    {
+     "t": "2026-10-31T16:29:00Z",
+     "status": "working",
+     "step": "(sorting)"
+    },
+    {
+     "t": "2026-10-31T16:23:00Z",
+     "status": "working",
+     "step": "(sorting)"
+    },
+    {
+     "t": "2026-10-31T16:17:00Z",
+     "status": "working",
+     "step": "(sorting)"
+    },
+    {
+     "t": "2026-10-31T16:11:00Z",
+     "status": "working",
+     "step": "(sorting)"
+    }
+   ]
+  },
+  "codila-x-researcher": {
+   "id": "codila-x-researcher",
+   "name": "X Researcher",
+   "floor": "x-content",
+   "desk": 8,
+   "group": "X content",
+   "status": "waiting_user",
+   "effective_status": "waiting_user",
+   "step": "(research)",
+   "task": "(research)",
+   "since": "2026-10-31T16:37:00Z",
+   "last_event": "2026-10-31T16:57:00Z",
+   "usage_pct": 2.8,
+   "usage_share": 0.071,
+   "chat_url": null,
+   "avatar": "codila-x-researcher",
+   "color": "#111111",
+   "today": {
+    "working_min": 83,
+    "events": 24,
+    "tasks_done": 4,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2,
+     3,
+     2,
+     2,
+     2,
+     3,
+     2,
+     2,
+     2,
+     2,
+     2,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:57:00Z",
+     "status": "waiting_user",
+     "step": "(research)"
+    },
+    {
+     "t": "2026-10-31T16:51:00Z",
+     "status": "working",
+     "step": "(research)"
+    },
+    {
+     "t": "2026-10-31T16:45:00Z",
+     "status": "working",
+     "step": "(research)"
+    },
+    {
+     "t": "2026-10-31T16:39:00Z",
+     "status": "working",
+     "step": "(research)"
+    },
+    {
+     "t": "2026-10-31T16:33:00Z",
+     "status": "working",
+     "step": "(research)"
+    }
+   ]
+  },
+  "trendy-x": {
+   "id": "trendy-x",
+   "name": "Trendy X",
+   "floor": "x-content",
+   "desk": 9,
+   "group": "X content",
+   "status": "working",
+   "effective_status": "working",
+   "step": "(analytics)",
+   "task": "(analytics)",
+   "since": "2026-10-31T16:34:00Z",
+   "last_event": "2026-10-31T16:54:00Z",
+   "usage_pct": 2.2,
+   "usage_share": 0.056,
+   "chat_url": null,
+   "avatar": "trendy-x",
+   "color": "#FF6A13",
+   "today": {
+    "working_min": 90,
+    "events": 26,
+    "tasks_done": 0,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     3,
+     2,
+     2,
+     2,
+     3,
+     2,
+     2,
+     3,
+     3,
+     2,
+     2,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:54:00Z",
+     "status": "working",
+     "step": "(analytics)"
+    },
+    {
+     "t": "2026-10-31T16:48:00Z",
+     "status": "working",
+     "step": "(analytics)"
+    },
+    {
+     "t": "2026-10-31T16:42:00Z",
+     "status": "working",
+     "step": "(analytics)"
+    },
+    {
+     "t": "2026-10-31T16:36:00Z",
+     "status": "working",
+     "step": "(analytics)"
+    },
+    {
+     "t": "2026-10-31T16:30:00Z",
+     "status": "working",
+     "step": "(analytics)"
+    }
+   ]
+  },
+  "substack": {
+   "id": "substack",
+   "name": "Substack",
+   "floor": "publishing",
+   "desk": 1,
+   "group": "Publishing",
+   "status": "idle",
+   "effective_status": "idle",
+   "step": "(writing)",
+   "task": null,
+   "since": "2026-10-31T16:31:00Z",
+   "last_event": "2026-10-31T16:51:00Z",
+   "usage_pct": 1.1,
+   "usage_share": 0.028,
+   "chat_url": null,
+   "avatar": "substack",
+   "color": "#FF6B00",
+   "today": {
+    "working_min": 97,
+    "events": 28,
+    "tasks_done": 1,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     3,
+     2,
+     3,
+     3,
+     2,
+     2,
+     3,
+     3,
+     2,
+     2,
+     3,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:51:00Z",
+     "status": "idle",
+     "step": "(writing)"
+    },
+    {
+     "t": "2026-10-31T16:45:00Z",
+     "status": "working",
+     "step": "(writing)"
+    },
+    {
+     "t": "2026-10-31T16:39:00Z",
+     "status": "working",
+     "step": "(writing)"
+    },
+    {
+     "t": "2026-10-31T16:33:00Z",
+     "status": "working",
+     "step": "(writing)"
+    },
+    {
+     "t": "2026-10-31T16:27:00Z",
+     "status": "working",
+     "step": "(writing)"
+    }
+   ]
+  },
+  "x-ads-manager": {
+   "id": "x-ads-manager",
+   "name": "X Ads Manager",
+   "floor": "publishing",
+   "desk": 2,
+   "group": "Publishing",
+   "status": "waiting_user",
+   "effective_status": "waiting_user",
+   "step": "(ads)",
+   "task": "(ads)",
+   "since": "2026-10-31T16:28:00Z",
+   "last_event": "2026-10-31T16:48:00Z",
+   "usage_pct": 0.9,
+   "usage_share": 0.023,
+   "chat_url": null,
+   "avatar": "x-ads-manager",
+   "color": "#8B5A2B",
+   "today": {
+    "working_min": 104,
+    "events": 30,
+    "tasks_done": 2,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     2,
+     3,
+     3,
+     3,
+     2,
+     3,
+     3,
+     2,
+     3,
+     3,
+     3,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:48:00Z",
+     "status": "waiting_user",
+     "step": "(ads)"
+    },
+    {
+     "t": "2026-10-31T16:42:00Z",
+     "status": "working",
+     "step": "(ads)"
+    },
+    {
+     "t": "2026-10-31T16:36:00Z",
+     "status": "working",
+     "step": "(ads)"
+    },
+    {
+     "t": "2026-10-31T16:30:00Z",
+     "status": "working",
+     "step": "(ads)"
+    },
+    {
+     "t": "2026-10-31T16:24:00Z",
+     "status": "working",
+     "step": "(ads)"
+    }
+   ]
+  },
+  "warren-buffett": {
+   "id": "warren-buffett",
+   "name": "Warren Buffett",
+   "floor": "finance",
+   "desk": 1,
+   "group": "Finance",
+   "status": "idle",
+   "effective_status": "idle",
+   "step": "(investing)",
+   "task": null,
+   "since": "2026-10-31T16:25:00Z",
+   "last_event": "2026-10-31T16:45:00Z",
+   "usage_pct": 2,
+   "usage_share": 0.051,
+   "chat_url": null,
+   "avatar": "warren-buffett",
+   "color": "#E8C9A0",
+   "today": {
+    "working_min": 111,
+    "events": 32,
+    "tasks_done": 3,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     2,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:45:00Z",
+     "status": "idle",
+     "step": "(investing)"
+    },
+    {
+     "t": "2026-10-31T16:39:00Z",
+     "status": "working",
+     "step": "(investing)"
+    },
+    {
+     "t": "2026-10-31T16:33:00Z",
+     "status": "working",
+     "step": "(investing)"
+    },
+    {
+     "t": "2026-10-31T16:27:00Z",
+     "status": "working",
+     "step": "(investing)"
+    },
+    {
+     "t": "2026-10-31T16:21:00Z",
+     "status": "working",
+     "step": "(investing)"
+    }
+   ]
+  },
+  "finance-team": {
+   "id": "finance-team",
+   "name": "Finance Team",
+   "floor": "finance",
+   "desk": 2,
+   "group": "Finance",
+   "status": "working",
+   "effective_status": "working",
+   "step": "(finance)",
+   "task": "(finance)",
+   "since": "2026-10-31T16:22:00Z",
+   "last_event": "2026-10-31T16:42:00Z",
+   "usage_pct": 1.5,
+   "usage_share": 0.038,
+   "chat_url": null,
+   "avatar": "finance-team",
+   "color": "#2E9E5B",
+   "today": {
+    "working_min": 118,
+    "events": 34,
+    "tasks_done": 4,
+    "hourly": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     3,
+     4,
+     3,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "history": [
+    {
+     "t": "2026-10-31T16:42:00Z",
+     "status": "working",
+     "step": "(finance)"
+    },
+    {
+     "t": "2026-10-31T16:36:00Z",
+     "status": "working",
+     "step": "(finance)"
+    },
+    {
+     "t": "2026-10-31T16:30:00Z",
+     "status": "working",
+     "step": "(finance)"
+    },
+    {
+     "t": "2026-10-31T16:24:00Z",
+     "status": "working",
+     "step": "(finance)"
+    },
+    {
+     "t": "2026-10-31T16:18:00Z",
+     "status": "working",
+     "step": "(finance)"
+    }
+   ]
+  }
+ },
+ "feed": [
+  {
+   "t": "2026-10-31T16:59:00Z",
+   "bot": "grok-bot",
+   "name": "Grok Bot",
+   "status": "working",
+   "step": "(planning)"
+  },
+  {
+   "t": "2026-10-31T16:57:00Z",
+   "bot": "codila-x-researcher",
+   "name": "X Researcher",
+   "status": "waiting_user",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T16:56:00Z",
+   "bot": "jevopus",
+   "name": "Jevopus",
+   "status": "idle",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:54:00Z",
+   "bot": "trendy-x",
+   "name": "Trendy X",
+   "status": "working",
+   "step": "(analytics)"
+  },
+  {
+   "t": "2026-10-31T16:53:00Z",
+   "bot": "x-writer",
+   "name": "X Writer",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:53:00Z",
+   "bot": "grok-bot",
+   "name": "Grok Bot",
+   "status": "working",
+   "step": "(planning)"
+  },
+  {
+   "t": "2026-10-31T16:51:00Z",
+   "bot": "substack",
+   "name": "Substack",
+   "status": "idle",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:51:00Z",
+   "bot": "codila-x-researcher",
+   "name": "X Researcher",
+   "status": "working",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T16:50:00Z",
+   "bot": "banner-visuals",
+   "name": "Banner & Visuals",
+   "status": "working",
+   "step": "(design)"
+  },
+  {
+   "t": "2026-10-31T16:50:00Z",
+   "bot": "jevopus",
+   "name": "Jevopus",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:48:00Z",
+   "bot": "x-ads-manager",
+   "name": "X Ads Manager",
+   "status": "waiting_user",
+   "step": "(ads)"
+  },
+  {
+   "t": "2026-10-31T16:48:00Z",
+   "bot": "trendy-x",
+   "name": "Trendy X",
+   "status": "working",
+   "step": "(analytics)"
+  },
+  {
+   "t": "2026-10-31T16:47:00Z",
+   "bot": "analytics-analyst",
+   "name": "Analytics Analyst",
+   "status": "error",
+   "step": "(analytics)"
+  },
+  {
+   "t": "2026-10-31T16:47:00Z",
+   "bot": "x-writer",
+   "name": "X Writer",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:47:00Z",
+   "bot": "grok-bot",
+   "name": "Grok Bot",
+   "status": "working",
+   "step": "(planning)"
+  },
+  {
+   "t": "2026-10-31T16:45:00Z",
+   "bot": "warren-buffett",
+   "name": "Warren Buffett",
+   "status": "idle",
+   "step": "(investing)"
+  },
+  {
+   "t": "2026-10-31T16:45:00Z",
+   "bot": "substack",
+   "name": "Substack",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:45:00Z",
+   "bot": "codila-x-researcher",
+   "name": "X Researcher",
+   "status": "working",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T16:44:00Z",
+   "bot": "competitor-watch",
+   "name": "Competitor Watch",
+   "status": "done",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T16:44:00Z",
+   "bot": "banner-visuals",
+   "name": "Banner & Visuals",
+   "status": "working",
+   "step": "(design)"
+  },
+  {
+   "t": "2026-10-31T16:44:00Z",
+   "bot": "jevopus",
+   "name": "Jevopus",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:42:00Z",
+   "bot": "finance-team",
+   "name": "Finance Team",
+   "status": "working",
+   "step": "(finance)"
+  },
+  {
+   "t": "2026-10-31T16:42:00Z",
+   "bot": "x-ads-manager",
+   "name": "X Ads Manager",
+   "status": "working",
+   "step": "(ads)"
+  },
+  {
+   "t": "2026-10-31T16:42:00Z",
+   "bot": "trendy-x",
+   "name": "Trendy X",
+   "status": "working",
+   "step": "(analytics)"
+  },
+  {
+   "t": "2026-10-31T16:41:00Z",
+   "bot": "analytics-analyst",
+   "name": "Analytics Analyst",
+   "status": "working",
+   "step": "(analytics)"
+  },
+  {
+   "t": "2026-10-31T16:41:00Z",
+   "bot": "x-writer",
+   "name": "X Writer",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:41:00Z",
+   "bot": "grok-bot",
+   "name": "Grok Bot",
+   "status": "working",
+   "step": "(planning)"
+  },
+  {
+   "t": "2026-10-31T16:39:00Z",
+   "bot": "warren-buffett",
+   "name": "Warren Buffett",
+   "status": "working",
+   "step": "(investing)"
+  },
+  {
+   "t": "2026-10-31T16:39:00Z",
+   "bot": "substack",
+   "name": "Substack",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:39:00Z",
+   "bot": "codila-x-researcher",
+   "name": "X Researcher",
+   "status": "working",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T16:38:00Z",
+   "bot": "ideas-sparring",
+   "name": "Ideas Sparring",
+   "status": "idle",
+   "step": "(brainstorming)"
+  },
+  {
+   "t": "2026-10-31T16:38:00Z",
+   "bot": "competitor-watch",
+   "name": "Competitor Watch",
+   "status": "working",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T16:38:00Z",
+   "bot": "banner-visuals",
+   "name": "Banner & Visuals",
+   "status": "working",
+   "step": "(design)"
+  },
+  {
+   "t": "2026-10-31T16:38:00Z",
+   "bot": "jevopus",
+   "name": "Jevopus",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:36:00Z",
+   "bot": "finance-team",
+   "name": "Finance Team",
+   "status": "working",
+   "step": "(finance)"
+  },
+  {
+   "t": "2026-10-31T16:36:00Z",
+   "bot": "x-ads-manager",
+   "name": "X Ads Manager",
+   "status": "working",
+   "step": "(ads)"
+  },
+  {
+   "t": "2026-10-31T16:36:00Z",
+   "bot": "trendy-x",
+   "name": "Trendy X",
+   "status": "working",
+   "step": "(analytics)"
+  },
+  {
+   "t": "2026-10-31T16:35:00Z",
+   "bot": "bookmarks-brain",
+   "name": "Bookmarks Brain",
+   "status": "working",
+   "step": "(sorting)"
+  },
+  {
+   "t": "2026-10-31T16:35:00Z",
+   "bot": "analytics-analyst",
+   "name": "Analytics Analyst",
+   "status": "working",
+   "step": "(analytics)"
+  },
+  {
+   "t": "2026-10-31T16:35:00Z",
+   "bot": "x-writer",
+   "name": "X Writer",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:35:00Z",
+   "bot": "grok-bot",
+   "name": "Grok Bot",
+   "status": "working",
+   "step": "(planning)"
+  },
+  {
+   "t": "2026-10-31T16:33:00Z",
+   "bot": "warren-buffett",
+   "name": "Warren Buffett",
+   "status": "working",
+   "step": "(investing)"
+  },
+  {
+   "t": "2026-10-31T16:33:00Z",
+   "bot": "substack",
+   "name": "Substack",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:33:00Z",
+   "bot": "codila-x-researcher",
+   "name": "X Researcher",
+   "status": "working",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T16:32:00Z",
+   "bot": "ideas-sparring",
+   "name": "Ideas Sparring",
+   "status": "working",
+   "step": "(brainstorming)"
+  },
+  {
+   "t": "2026-10-31T16:32:00Z",
+   "bot": "competitor-watch",
+   "name": "Competitor Watch",
+   "status": "working",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T16:32:00Z",
+   "bot": "banner-visuals",
+   "name": "Banner & Visuals",
+   "status": "working",
+   "step": "(design)"
+  },
+  {
+   "t": "2026-10-31T16:32:00Z",
+   "bot": "jevopus",
+   "name": "Jevopus",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:30:00Z",
+   "bot": "finance-team",
+   "name": "Finance Team",
+   "status": "working",
+   "step": "(finance)"
+  },
+  {
+   "t": "2026-10-31T16:30:00Z",
+   "bot": "x-ads-manager",
+   "name": "X Ads Manager",
+   "status": "working",
+   "step": "(ads)"
+  },
+  {
+   "t": "2026-10-31T16:30:00Z",
+   "bot": "trendy-x",
+   "name": "Trendy X",
+   "status": "working",
+   "step": "(analytics)"
+  },
+  {
+   "t": "2026-10-31T16:29:00Z",
+   "bot": "bookmarks-brain",
+   "name": "Bookmarks Brain",
+   "status": "working",
+   "step": "(sorting)"
+  },
+  {
+   "t": "2026-10-31T16:29:00Z",
+   "bot": "analytics-analyst",
+   "name": "Analytics Analyst",
+   "status": "working",
+   "step": "(analytics)"
+  },
+  {
+   "t": "2026-10-31T16:29:00Z",
+   "bot": "x-writer",
+   "name": "X Writer",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:27:00Z",
+   "bot": "warren-buffett",
+   "name": "Warren Buffett",
+   "status": "working",
+   "step": "(investing)"
+  },
+  {
+   "t": "2026-10-31T16:27:00Z",
+   "bot": "substack",
+   "name": "Substack",
+   "status": "working",
+   "step": "(writing)"
+  },
+  {
+   "t": "2026-10-31T16:26:00Z",
+   "bot": "ideas-sparring",
+   "name": "Ideas Sparring",
+   "status": "working",
+   "step": "(brainstorming)"
+  },
+  {
+   "t": "2026-10-31T16:26:00Z",
+   "bot": "competitor-watch",
+   "name": "Competitor Watch",
+   "status": "working",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T16:26:00Z",
+   "bot": "banner-visuals",
+   "name": "Banner & Visuals",
+   "status": "working",
+   "step": "(design)"
+  },
+  {
+   "t": "2026-10-31T16:24:00Z",
+   "bot": "finance-team",
+   "name": "Finance Team",
+   "status": "working",
+   "step": "(finance)"
+  },
+  {
+   "t": "2026-10-31T16:24:00Z",
+   "bot": "x-ads-manager",
+   "name": "X Ads Manager",
+   "status": "working",
+   "step": "(ads)"
+  },
+  {
+   "t": "2026-10-31T16:23:00Z",
+   "bot": "bookmarks-brain",
+   "name": "Bookmarks Brain",
+   "status": "working",
+   "step": "(sorting)"
+  },
+  {
+   "t": "2026-10-31T16:23:00Z",
+   "bot": "analytics-analyst",
+   "name": "Analytics Analyst",
+   "status": "working",
+   "step": "(analytics)"
+  },
+  {
+   "t": "2026-10-31T16:21:00Z",
+   "bot": "warren-buffett",
+   "name": "Warren Buffett",
+   "status": "working",
+   "step": "(investing)"
+  },
+  {
+   "t": "2026-10-31T16:20:00Z",
+   "bot": "ideas-sparring",
+   "name": "Ideas Sparring",
+   "status": "working",
+   "step": "(brainstorming)"
+  },
+  {
+   "t": "2026-10-31T16:20:00Z",
+   "bot": "competitor-watch",
+   "name": "Competitor Watch",
+   "status": "working",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T16:18:00Z",
+   "bot": "finance-team",
+   "name": "Finance Team",
+   "status": "working",
+   "step": "(finance)"
+  },
+  {
+   "t": "2026-10-31T16:17:00Z",
+   "bot": "bookmarks-brain",
+   "name": "Bookmarks Brain",
+   "status": "working",
+   "step": "(sorting)"
+  },
+  {
+   "t": "2026-10-31T16:14:00Z",
+   "bot": "ideas-sparring",
+   "name": "Ideas Sparring",
+   "status": "working",
+   "step": "(brainstorming)"
+  },
+  {
+   "t": "2026-10-31T16:13:00Z",
+   "bot": "qt-scout",
+   "name": "QT Scout",
+   "status": "working",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T16:11:00Z",
+   "bot": "bookmarks-brain",
+   "name": "Bookmarks Brain",
+   "status": "working",
+   "step": "(sorting)"
+  },
+  {
+   "t": "2026-10-31T16:07:00Z",
+   "bot": "qt-scout",
+   "name": "QT Scout",
+   "status": "working",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T16:01:00Z",
+   "bot": "qt-scout",
+   "name": "QT Scout",
+   "status": "working",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T15:55:00Z",
+   "bot": "qt-scout",
+   "name": "QT Scout",
+   "status": "working",
+   "step": "(research)"
+  },
+  {
+   "t": "2026-10-31T15:49:00Z",
+   "bot": "qt-scout",
+   "name": "QT Scout",
+   "status": "working",
+   "step": "(research)"
+  }
+ ]
+}

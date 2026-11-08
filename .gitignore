@@ -1,0 +1,22 @@
+# runtime: journal, password, config (never commit)
+/data/
+node_modules/
+*.log
+
+# local design shots and build intermediates
+mockups/
+__pycache__/
+*.pyc
+*.blend1
+assets/_src/office/bake/
+assets/_src/office/bake2/
+assets/_src/office/kenney/*.zip
+assets/_src/office/kenney/Isometric/
+assets/_src/office/kenney/Side/
+
+# design prototypes (served locally at /_mock/)
+web/_mock/
+
+# Lively package built with the view key inside (lively/build.ps1); the public one has no key and the site serves it
+lively/dist/*
+!lively/dist/grokbot-wallpaper-windows.zip
