@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { buildFloorStyles } from './floorstyle.js';
+import { dressWorkstations } from './workstations.js';
 
 export const DESK_COUNT = 20;
 export const LOUNGE_COUNT = 6;
@@ -56,6 +57,8 @@ export async function loadOfficeAssets(baseUrl) {
 // Per-floor accent + lounge corners (floorstyle.js) are added to the template here, after the spots are read. They need
 // the GLB lounge; the placeholder floor keeps one look (style = null).
 function finish(templates, spots, nightMaps, source) {
+  try { dressWorkstations(templates.floor_open); }
+  catch (err) { console.warn('[office] workstations skipped:', err.message); }
   let style = null;
   try {
     if (new URLSearchParams(location.search).get('floorstyle') !== '0') style = buildFloorStyles(templates.floor_open, spots.lounges);   // test switch: ?floorstyle=0
@@ -215,7 +218,8 @@ function buildPlaceholder() {
   const lap = [];
   for (let t = 0; t < 2; t++) {
     const z0 = TABLE_Z[t];
-    addBox(open, M.oak, TABLE_LEN, 0.05, TABLE_W, TABLE_X, 0.725, z0);
+    const table = addBox(open, M.oak, TABLE_LEN, 0.05, TABLE_W, TABLE_X, 0.725, z0);
+    table.name = `table_${t + 1}`;
     for (const lx of [-4.1, -1.4, 1.4, 4.1]) for (const s of [-1, 1]) addBox(open, M.black, 0.05, 0.7, 0.05, TABLE_X + lx, 0.35, z0 + s * 0.48);
     for (const lx of [-4.1, 4.1]) addBox(open, M.black, 0.04, 0.04, 0.96, TABLE_X + lx, 0.1, z0);
     for (let i = 0; i < 10; i++) {
