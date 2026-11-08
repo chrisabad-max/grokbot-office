@@ -33,13 +33,13 @@ const CFG_KINDS = ['roster', 'looks', 'groups', 'chat'];
 const DEFAULT_LOOKS = {
   'Peter · Chief Assistant': { shape: 'rounded_cube', color: '#1F3A5F', accessory: 'none' },
   'Philip · Email & Calendar': { shape: 'rounded_square', color: '#2D84F5', accessory: 'glasses' },
-  'Thomas · Accountability Coach': { shape: 'triangle', color: '#D6408B', accessory: 'glasses' },   // raspberry
+  'Thomas · Accountability Coach': { shape: 'triangle', color: '#F26B5B', accessory: 'glasses' },
   'Matthew · Finance & Budget': { shape: 'hexagon', color: '#2E9E5B', accessory: 'glasses' },
   'Bartholomew · Graphic Designer': { shape: 'star6', color: '#F2B705', accessory: 'bow' },
   'Simon · Vocal Coach': { shape: 'pill', color: '#C0392B', accessory: 'antenna' },
   'Andrew · Developer & Builder': { shape: 'pentagon', color: '#6C5CE7', accessory: 'antenna' },
   'John · Spiritual Mentor': { shape: 'sphere', color: '#3BB6C9', accessory: 'none' },
-  'James · Health & Fitness Coach': { shape: 'star4', color: '#FF7A00', accessory: 'none' },
+  'James · Health & Fitness Coach': { shape: 'star4', color: '#B86B35', accessory: 'none' },
 };
 
 export const isExcluded = (name) => typeof name === 'string' && EXCLUDED.has(botIdFor(name.trim()));
