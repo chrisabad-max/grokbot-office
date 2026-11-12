@@ -3,9 +3,10 @@
 // FORK NOTES (Chris Abad's copy of grokbot-wallpaper by @0xCodila / Bodila51; see README "About this fork"):
 //  - One mailbox only: ntfy.sh by default (#<topic>), or the one a link names (#<topic>@<host>). The author's relay
 //    (relay.0xcodila.com) is never contacted, and there is no usage beacon / analytics ping.
-//  - The LATEST roster, groups, looks and chat lines are authoritative: each replaces the previous one instead of being
-//    merged into it. Bots missing from the newest roster (and their status lines) are not shown; teams missing from
-//    the newest groups line are gone. A bot named "Phone with Bland" is never shown (it is not part of the team).
+//  - The office always shows these twelve disciples, in this order, even when the mailbox has no roster line.
+//    Status, looks, groups, chat, routines, per-bot usage and check lines for any other name are ignored, and a
+//    roster line cannot add anyone outside the list. Names match through botIdFor, so small spacing differences still count.
+//  - The LATEST groups, looks and chat lines still replace the previous ones, but only for those twelve.
 //  - The browser cache uses a new key (old caches are deleted) and keeps status lines for 12 h only. The latest
 //    roster/looks/groups/chat/routines lines are cached on their own (one of each, at most 7 days old), so the office
 //    keeps its teams overnight even after the mailbox's 12 h window has passed.
@@ -27,9 +28,23 @@ const QUIET_MS = 20 * 60e3, CHECK_MS = 6 * 3600e3;    // a silent worker turns i
 const LINE_AGE_MS = 12 * 3600e3;                       // cached status lines: 12 h, like the mailbox
 const CFG_AGE_MS = 7 * DAY_MS;                         // cached latest roster/looks/groups/chat/routines: 7 days
 const CACHE_NS = 'bothq.fork1';                        // new namespace: browsers start fresh
-const EXCLUDED = new Set(['Phone with Bland'].map(botIdFor));   // never shown, whatever the feed says
+const DISCIPLES = [
+  'Peter · Chief Assistant',
+  'Andrew · Developer & Builder',
+  'James · Health & Fitness Coach',
+  'John · Spiritual Mentor',
+  'Philip · Email & Calendar',
+  'Bartholomew · Graphic Designer',
+  'Thomas · Accountability Coach',
+  'Matthew · Finance & Budget',
+  'James the Less · Deal Hunting',
+  'Jude · Video Editor',
+  'Simon · Vocal Coach',
+  'Matthias · Copy & Comms',
+];
+const DISCIPLE_IDS = new Set(DISCIPLES.map(botIdFor));
 const CFG_KINDS = ['roster', 'looks', 'groups', 'chat'];
-// Fallback looks for the team, used only for a bot the latest looks line does not cover (a looks line always wins).
+// Fallback looks, used only when the latest looks line does not cover that disciple (a looks line always wins).
 const DEFAULT_LOOKS = {
   'Peter · Chief Assistant': { shape: 'rounded_cube', color: '#1F3A5F', accessory: 'none' },
   'Philip · Email & Calendar': { shape: 'rounded_square', color: '#2D84F5', accessory: 'glasses' },
@@ -40,9 +55,13 @@ const DEFAULT_LOOKS = {
   'Andrew · Developer & Builder': { shape: 'pentagon', color: '#6C5CE7', accessory: 'antenna' },
   'John · Spiritual Mentor': { shape: 'sphere', color: '#3BB6C9', accessory: 'none' },
   'James · Health & Fitness Coach': { shape: 'star4', color: '#B86B35', accessory: 'none' },
+  'James the Less · Deal Hunting': { shape: 'clover', color: '#E07A3D', accessory: 'stem' },
+  'Jude · Video Editor': { shape: 'drop', color: '#5B4B8A', accessory: 'glasses' },
+  'Matthias · Copy & Comms': { shape: 'cone', color: '#1F8A70', accessory: 'bow' },
 };
 
-export const isExcluded = (name) => typeof name === 'string' && EXCLUDED.has(botIdFor(name.trim()));
+export const isDisciple = (name) => typeof name === 'string' && DISCIPLE_IDS.has(botIdFor(name.trim()));
+export const isExcluded = (name) => typeof name === 'string' && !isDisciple(name);
 
 /** The page's hash and query -> { topic, servers: [one mailbox, no trailing slash] }, or null without a topic. */
 export function feedFromHash(hash, search = '') {
@@ -60,7 +79,6 @@ export async function connectFeed({ topic, servers }, onState) {
   let store = null;
   let lines = [];                                        // status / usage / check lines (and anything else), oldest first
   const latest = { routines: {} };                       // kind -> { time, rec }; routines: bot id -> { time, rec }
-  let roster = null;                                     // Set of bot ids from the latest roster, or null if none yet
   let check = null;                                      // the latest status check: { ms, names }
   let lastId = null, saveTimer = 0;
   const seen = new Set();
@@ -128,7 +146,7 @@ export async function connectFeed({ topic, servers }, onState) {
       if (!latest[kind] || l.time >= latest[kind].time) latest[kind] = { time: l.time, rec };
     } else if (kind === 'routines') {
       const name = typeof rec.routines.bot === 'string' ? rec.routines.bot.trim().slice(0, 80) : '';
-      if (name && Array.isArray(rec.routines.items)) {
+      if (name && isDisciple(name) && Array.isArray(rec.routines.items)) {
         const id = botIdFor(name);
         if (!latest.routines[id] || l.time >= latest.routines[id].time) latest.routines[id] = { time: l.time, rec };
       }
@@ -137,10 +155,7 @@ export async function connectFeed({ topic, servers }, onState) {
     }
     return kind;
   }
-  function allowed(name) {
-    if (typeof name !== 'string' || !name.trim() || isExcluded(name)) return false;
-    return !roster || roster.has(botIdFor(name.trim()));
-  }
+  function allowed(name) { return isDisciple(name); }
   function nameMap(obj) {                                // a {name: value} map without excluded / unlisted bots
     const out = {};
     if (isMap(obj)) for (const [name, v] of Object.entries(obj).slice(0, 400)) if (allowed(name)) out[name] = v;
@@ -151,9 +166,6 @@ export async function connectFeed({ topic, servers }, onState) {
     const cut = Date.now() / 1000 - LINE_AGE_MS / 1000;
     lines = lines.filter((l) => l.time >= cut).slice(-KEEP);
     store = new StateStore({ tz, quietIdleMs: QUIET_MS, hasAvatar: () => false });   // no GLB probe: every bot is generated from its look
-    const names = (latest.roster?.rec.roster || []).filter((n) => typeof n === 'string' && n.trim() && !isExcluded(n))
-      .slice(0, 400).map((n) => n.trim());
-    roster = names.length ? new Set(names.map(botIdFor)) : null;
     const cfg = {};
     const looks = { ...nameMap(DEFAULT_LOOKS), ...nameMap(latest.looks?.rec.looks) };
     for (const [name, look] of Object.entries(looks)) (cfg[name] ||= {}).look = look;
@@ -164,7 +176,7 @@ export async function connectFeed({ topic, servers }, onState) {
       if (typeof url === 'string' && /^(grokbot|https):\/\//i.test(url.trim())) (cfg[name] ||= {}).chat_url = url.trim();
     }
     store.setBotsConfig(cfg);
-    for (const name of names) store.apply({ bot: name, status: 'idle', step: '', listed: true }, { replay: true });
+    for (const name of DISCIPLES) store.apply({ bot: name, status: 'idle', step: '', listed: true }, { replay: true });
     check = null;
     for (const l of lines) apply(l, true);
     store.commit();

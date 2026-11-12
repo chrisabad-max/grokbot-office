@@ -1,13 +1,12 @@
 // Desk tops and workstation screens, added to the floor_open template (every level clones it).
 // Tops are a shared near-white material so they stay lighter than the beige floor after the sun.
-// Seven seats get a monitor (five single, two dual), spread down both tables and both sides.
-// The rest keep a laptop. The pattern is fixed. A monitor's local +Z is the screen, and that
-// axis is aimed at the seat, so opposite sides of a row face opposite ways.
+// The first twelve seats each get one monitor, aimed at that chair, so the twelve disciples
+// each have a screen. Opposite sides of a row face opposite ways. The other seats keep a laptop.
 import * as THREE from 'three';
 
 const DESK_COUNT = 20;
-// 0 laptop, 1 one monitor, 2 two monitors. Seats 1, 4, 12, 15, 18 single; 9 and 19 dual.
-const KIND = [1, 0, 0, 1, 0, 0, 0, 0, 2, 0, 0, 1, 0, 0, 1, 0, 0, 1, 2, 0];
+// 1 = one monitor facing that seat. The first twelve seats (the disciples) each get one; the rest keep a laptop.
+const KIND = Array.from({ length: DESK_COUNT }, (_, i) => (i < 12 ? 1 : 0));
 const REACH = 0.84;                 // metres from the seat empty to the stand, onto the table
 const DESK_Y = 0.75;                // table top
 const SCREEN_W = 0.44, SCREEN_H = 0.26, BEZEL = 0.011;

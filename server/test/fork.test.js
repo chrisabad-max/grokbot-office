@@ -46,11 +46,17 @@ test('fork: feed.js – latest roster/groups win, Phone with Bland hidden, only 
     globalThis.setInterval = realSetInterval;
     globalThis.setTimeout = realSetTimeout;
   }
-  assert.deepEqual(Object.keys(state.bots).sort(), ['a-one', 'b-two']);
-  assert.deepEqual(state.floors.map((f) => f.name), ['The Twelve']);
-  assert.equal(state.bots['a-one'].effective_status, 'working');
-  assert.equal(state.bots['a-one'].chat_url, null);
-  assert.equal(state.bots['b-two'].chat_url, 'grokbot://app/v1/agent?id=1');
+  const ids = Object.keys(state.bots).sort();
+  assert.equal(ids.length, 12);
+  assert.ok(ids.includes('peter-chief-assistant'));
+  assert.ok(ids.includes('matthias-copy-comms'));
+  assert.equal(ids.includes('a-one'), false);
+  assert.equal(ids.includes('phone-with-bland'), false);
+  assert.equal(ids.includes('stranger'), false);
+  assert.equal(state.bots['james-the-less-deal-hunting'].look.shape, 'clover');
+  assert.equal(state.bots['jude-video-editor'].look.shape, 'drop');
+  assert.equal(state.bots['matthias-copy-comms'].look.shape, 'cone');
+  assert.deepEqual(state.floors.map((f) => f.name), ['Main floor']);
   assert.ok(urls.every((u) => u.startsWith('https://ntfy.sh/testtopic1/')), urls.join(' '));
   assert.ok(!mem.has('bothq.feed.old'));
   assert.ok([...mem.keys()].every((k) => k.startsWith('bothq.fork1.')));
