@@ -23,12 +23,22 @@ test('fork: feed.js – latest roster/groups win, Phone with Bland hidden, only 
     { bot: 'Phone with Bland', status: 'working', step: 'calling' },
     { bot: 'Stranger', status: 'working', step: 'not on the roster' },
     { roster: ['A · One', 'B · Two'] },
-    { groups: { 'A · One': 'The Twelve', 'B · Two': 'The Twelve' } },
+    { groups: {
+      'Peter · Chief Assistant': 'Alpha', 'Andrew · Developer & Builder': 'Alpha', 'James · Health & Fitness Coach': 'Alpha',
+      'John · Spiritual Mentor': 'Beta', 'Philip · Email & Calendar': 'Beta', 'Bartholomew · Graphic Designer': 'Beta',
+      'Thomas · Accountability Coach': 'Beta', 'Matthew · Finance & Budget': 'Beta', 'James the Less · Deal Hunting': 'Beta',
+      'Jude · Video Editor': 'Beta', 'Simon · Vocal Coach': 'Beta', 'Matthias · Copy & Comms': 'Beta',
+    } },
     { bot: 'A · One', status: 'working', step: 'busy' },
     { chat: { 'A · One': 'javascript:alert(1)', 'B · Two': 'grokbot://app/v1/agent?id=1' } },
   ].map((m, i) => JSON.stringify({ id: `m${i}`, time: Math.floor(now) - 100 + i, event: 'message', message: JSON.stringify(m) })).join('\n');
   const urls = [];
-  const mem = new Map([['bothq.feed.old', '[]']]);
+  const mem = new Map([
+    ['bothq.feed.old', '[]'],
+    ['bothq.fork1.cfg.https://ntfy.sh.testtopic1', JSON.stringify({
+      groups: { time: Math.floor(now), rec: { groups: { 'Peter · Chief Assistant': 'Cached', 'John · Spiritual Mentor': 'Other' } } },
+    })],
+  ]);
   globalThis.localStorage = { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, v), removeItem: (k) => mem.delete(k),
     key: (i) => [...mem.keys()][i], get length() { return mem.size; } };
   globalThis.fetch = async (u) => { urls.push(u); return { text: async () => msgs }; };
@@ -57,6 +67,8 @@ test('fork: feed.js – latest roster/groups win, Phone with Bland hidden, only 
   assert.equal(state.bots['jude-video-editor'].look.shape, 'drop');
   assert.equal(state.bots['matthias-copy-comms'].look.shape, 'cone');
   assert.deepEqual(state.floors.map((f) => f.name), ['Main floor']);
+  assert.equal(state.floors[0].bots.length, 12);
+  for (const [k, v] of mem) if (k.includes('.cfg.')) assert.equal(JSON.parse(v).groups, undefined, k);
   assert.ok(urls.every((u) => u.startsWith('https://ntfy.sh/testtopic1/')), urls.join(' '));
   assert.ok(!mem.has('bothq.feed.old'));
   assert.ok([...mem.keys()].every((k) => k.startsWith('bothq.fork1.')));

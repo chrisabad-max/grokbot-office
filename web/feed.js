@@ -4,19 +4,20 @@
 //  - One mailbox only: ntfy.sh by default (#<topic>), or the one a link names (#<topic>@<host>). The author's relay
 //    (relay.0xcodila.com) is never contacted, and there is no usage beacon / analytics ping.
 //  - The office always shows these twelve disciples, in this order, even when the mailbox has no roster line.
-//    Status, looks, groups, chat, routines, per-bot usage and check lines for any other name are ignored, and a
+//    Status, looks, chat, routines, per-bot usage and check lines for any other name are ignored, and a
 //    roster line cannot add anyone outside the list. Names match through botIdFor, so small spacing differences still count.
-//  - The LATEST groups, looks and chat lines still replace the previous ones, but only for those twelve.
+//  - Groups lines are ignored and never create floors. Every disciple stays on the single main floor. A cached
+//    groups entry is deleted on load, so a browser that already stored one returns to one floor immediately.
+//  - The LATEST looks and chat lines still replace the previous ones, but only for those twelve.
 //  - The browser cache uses a new key (old caches are deleted) and keeps status lines for 12 h only. The latest
-//    roster/looks/groups/chat/routines lines are cached on their own (one of each, at most 7 days old), so the office
-//    keeps its teams overnight even after the mailbox's 12 h window has passed.
+//    roster/looks/chat/routines lines are cached on their own (one of each, at most 7 days old).
 //
 // Lines on the channel (one JSON object per message, at most 4 KB, anything else is dropped):
 //   {"bot":"…","status":"working|idle|waiting_user|error|done","step":"…"}     a status change
 //   {"roster":["Bot A","Bot B"]}                                                the team (latest replaces)
 //   {"looks":{"Bot A":{"shape":"sphere","color":"#RRGGBB","accessory":"none"}}} how each bot's blob looks (latest replaces)
 //   {"type":"usage","total_used_pct":37,"resets_at":"…","bots":{"Bot A":4.1}}  the weekly limit meter
-//   {"groups":{"Bot A":"Content"}}                                            teams, one floor each (latest replaces)
+//   {"groups":{"Bot A":"Content"}}                                            ignored: disciples stay on one floor
 //   {"chat":{"Bot A":"grokbot://app/v1/agent?id=…"}}                         each bot's chat (latest replaces)
 //   {"routines":{"bot":"Bot A","items":[{"name":"…","schedule":"…","next_run":"ISO"}]}}   a bot's routines (per bot)
 //   {"check":{"bots":["Bot A","Bot B"]}}                                     the setup bot starts a status check
@@ -26,7 +27,7 @@ import { feedFromLink } from './lib/feedbase.js';
 const MAX_LINE = 4096, KEEP = 600, TICK_MS = 30e3, DAY_MS = 24 * 3600e3;
 const QUIET_MS = 20 * 60e3, CHECK_MS = 6 * 3600e3;    // a silent worker turns idle; a status check stays up this long
 const LINE_AGE_MS = 12 * 3600e3;                       // cached status lines: 12 h, like the mailbox
-const CFG_AGE_MS = 7 * DAY_MS;                         // cached latest roster/looks/groups/chat/routines: 7 days
+const CFG_AGE_MS = 7 * DAY_MS;                         // cached latest roster/looks/chat/routines: 7 days
 const CACHE_NS = 'bothq.fork1';                        // new namespace: browsers start fresh
 const DISCIPLES = [
   'Peter · Chief Assistant',
@@ -43,7 +44,7 @@ const DISCIPLES = [
   'Matthias · Copy & Comms',
 ];
 const DISCIPLE_IDS = new Set(DISCIPLES.map(botIdFor));
-const CFG_KINDS = ['roster', 'looks', 'groups', 'chat'];
+const CFG_KINDS = ['roster', 'looks', 'chat'];         // groups are not cached: they must not split the floor
 // Fallback looks, used only when the latest looks line does not cover that disciple (a looks line always wins).
 const DEFAULT_LOOKS = {
   'Peter · Chief Assistant': { shape: 'rounded_cube', color: '#1F3A5F', accessory: 'none' },
@@ -84,7 +85,9 @@ export async function connectFeed({ topic, servers }, onState) {
   const seen = new Set();
 
   dropOldCaches();
+  forgetCachedGroups(cfgKey);
   const cachedCfg = readJSON(cfgKey, {}) || {};
+  delete cachedCfg.groups;
   for (const k of CFG_KINDS) if (cachedCfg[k]?.rec && Date.now() - cachedCfg[k].time * 1000 < CFG_AGE_MS) latest[k] = cachedCfg[k];
   for (const [id, r] of Object.entries(cachedCfg.routines || {})) if (r?.rec && Date.now() - r.time * 1000 < CFG_AGE_MS) latest.routines[id] = r;
   const cut0 = Date.now() / 1000 - LINE_AGE_MS / 1000;
@@ -110,6 +113,12 @@ export async function connectFeed({ topic, servers }, onState) {
 
   function readJSON(key, dflt) {
     try { return JSON.parse(localStorage.getItem(key)) ?? dflt; } catch { return dflt; }
+  }
+  function forgetCachedGroups(key) {                    // a stored groups line would keep a second floor for up to 7 days
+    const cfg = readJSON(key, null);
+    if (!cfg || !cfg.groups) return;
+    delete cfg.groups;
+    try { localStorage.setItem(key, JSON.stringify(cfg)); } catch { /* private mode */ }
   }
   function dropOldCaches() {                             // the original office's caches (merged, unbounded): gone
     try {
@@ -142,6 +151,7 @@ export async function connectFeed({ topic, servers }, onState) {
     const rec = parse(l.message);
     if (!rec) return null;
     const kind = kindOf(rec);
+    if (kind === 'groups') return null;                  // never a floor: the twelve stay together
     if (CFG_KINDS.includes(kind)) {
       if (!latest[kind] || l.time >= latest[kind].time) latest[kind] = { time: l.time, rec };
     } else if (kind === 'routines') {
@@ -169,9 +179,6 @@ export async function connectFeed({ topic, servers }, onState) {
     const cfg = {};
     const looks = { ...nameMap(DEFAULT_LOOKS), ...nameMap(latest.looks?.rec.looks) };
     for (const [name, look] of Object.entries(looks)) (cfg[name] ||= {}).look = look;
-    for (const [name, team] of Object.entries(nameMap(latest.groups?.rec.groups))) {
-      if (typeof team === 'string' && team.trim()) (cfg[name] ||= {}).floor = team.trim().slice(0, 40);
-    }
     for (const [name, url] of Object.entries(nameMap(latest.chat?.rec.chat))) {   // only app deep links and web pages
       if (typeof url === 'string' && /^(grokbot|https):\/\//i.test(url.trim())) (cfg[name] ||= {}).chat_url = url.trim();
     }
